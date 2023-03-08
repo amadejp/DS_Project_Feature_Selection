@@ -1,0 +1,9 @@
+# src specific .gitignore file
+
+# the usual
+.idea
+.pyc
+
+# full dataset file too large for GitHub 
+full_data.csv
+
