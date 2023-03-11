@@ -10,10 +10,12 @@
 * 21. (0.5h): Introductory meeting with Outbrain
 * 23. (1h): Literature overview
 
-## March 2020 (4h)
+## March 2020 (7.5h)
 * 1. (1h): Deep-dive meeting with Outbrain
 * 4. (1h): Literature overview
 * 8. (2h): Watching Git flow tutorials, preparing and editing GitHub repo & project
-
+* 10. (1h): Creating venv, ipynb for EDA, importing data
+* 11. (2h): EDA (data cardinality exploration)
+* 11. (0.5h): internal team meeting (syncing up on EDA)
 
 ## Total: [total sum of hours]
