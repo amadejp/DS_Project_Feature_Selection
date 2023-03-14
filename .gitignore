@@ -136,9 +136,6 @@ acs-*.bib
 # hyperref
 *.brf
 
-# IDE stuff
-.idea
-
 # knitr
 *-concordance.tex
 *.tikz
