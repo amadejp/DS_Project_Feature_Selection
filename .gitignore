@@ -1,5 +1,18 @@
+## EXTRA:
+
 # IDE
 .idea
+
+## src specific
+
+# full dataset file too large for GitHub, also Outbrain owns the data
+src/data/full_data.csv
+src/data/__MACOSX
+src/data/full_data.csv.zip
+src/data/__MACOSX/._full_data.csv
+
+
+### TEMPLATE:
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -281,20 +294,3 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
-
-
-
-## EXTRA:
-
-# IDE
-.idea
-
-## src specific
-
-# full dataset file too large for GitHub, also Outbrain owns the data
-src/data/full_data.csv
-src/data/__MACOSX
-src/data/full_data.csv.zip
-src/data/full_data.csv
-src/data/full_data.csv.zip
-src/data/__MACOSX/._full_data.csv
