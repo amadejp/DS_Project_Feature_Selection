@@ -19,6 +19,6 @@
 * 12. (2h): EDA (dominant feature values exploration)
 * 12. (2.5h): EDA (sparsity, correlation, grouping features)
 * 13. (1h): EDA - going through results, cleaning & fixing code, results, visualizations
-* 14. (1h): EDA - going through results, cleaning & fixing code, results, visualizations
+* 14. (1h): EDA - cleaning EDA code, results, visualizations + merging to master
 
 ## Total: [total sum of hours]
