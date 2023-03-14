@@ -1,3 +1,19 @@
+## EXTRA:
+
+# IDE
+.idea
+
+## src specific
+
+# full dataset file too large for GitHub, also Outbrain owns the data
+src/data/full_data.csv
+src/data/__MACOSX
+src/data/full_data.csv.zip
+src/data/__MACOSX/._full_data.csv
+
+
+### TEMPLATE:
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -135,7 +151,6 @@ acs-*.bib
 
 # knitr
 *-concordance.tex
-# TODO Comment the next line if you want to keep your tikz graphics files
 *.tikz
 *-tikzDictionary
 
