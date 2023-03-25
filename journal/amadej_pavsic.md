@@ -9,7 +9,7 @@
 * 21. (0.5h): Introductory meeting with Outbrain
 * 23. (1h): Literature overview
 
-## March 2020 (14h)
+## March 2020 (20h)
 * 1. (1h): Deep-dive meeting with Outbrain
 * 4. (1h): Literature overview
 * 8. (2h): Watching Git flow tutorials, preparing and editing GitHub repo & project
@@ -20,5 +20,11 @@
 * 12. (2.5h): EDA (sparsity, correlation, grouping features)
 * 13. (1h): EDA - going through results, cleaning & fixing code, results, visualizations
 * 14. (1h): EDA - cleaning EDA code, results, visualizations + merging to master
+* 15. (1h): Outbrain Meeting
+* 25. (1h): Internal team meeting (task delegation, sync up on work done)
+* 25. (1h): Documenting features, clustering features
+* 25. (2h): Building feature ranking & evaluation pipeline
+* 25. (1h): Exploring fuzzy Jaccard package
+
 
 ## Total: [total sum of hours]

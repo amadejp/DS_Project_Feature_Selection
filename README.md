@@ -27,7 +27,18 @@ There are several subfolders in the repository:
 
 Contains code & stuff.
 
-* subfolder with data (`/data`)
+* data subfolder (`/data`)
+    * placeholder for full_data.csv
+    * contains ground truth data
+
+
+* documentation subfolder (`/docs`)
+  * contains feature descriptions
+  * contains documentation of algorithm testing
+
+* fuji subfolder (`/fuji`)
+  * contains [Fuzzy Jaccard Index package](https://github.com/Petkomat/fuji-score), used to evaluate feature ranking algorithms
+
 
 ### The journal folder ###
 

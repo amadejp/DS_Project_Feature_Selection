@@ -3,6 +3,9 @@
 # IDE
 .idea
 
+# cache
+*.pyc
+
 ## src specific
 
 # full dataset file too large for GitHub, also Outbrain owns the data
@@ -10,7 +13,7 @@ src/data/full_data.csv
 src/data/__MACOSX
 src/data/full_data.csv.zip
 src/data/__MACOSX/._full_data.csv
-
+src/sandbox.py
 
 ### TEMPLATE:
 
