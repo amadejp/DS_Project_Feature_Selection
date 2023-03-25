@@ -1,0 +1,14 @@
+# helper_functions.py
+
+import time
+
+# wrapper function for timing functions
+def measure_runtime(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Function '{func.__name__}' took {end_time - start_time:.5f} seconds to execute.")
+        return result
+    return wrapper
+
