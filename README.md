@@ -36,6 +36,9 @@ Contains code & stuff.
   * contains feature descriptions
   * contains documentation of algorithm testing
 
+* results subfolder (`/results`)
+  * contains various results of algorithm testing
+
 * fuji subfolder (`/fuji`)
   * contains [Fuzzy Jaccard Index package](https://github.com/Petkomat/fuji-score), used to evaluate feature ranking algorithms
 

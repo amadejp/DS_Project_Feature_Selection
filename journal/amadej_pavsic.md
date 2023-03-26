@@ -9,7 +9,7 @@
 * 21. (0.5h): Introductory meeting with Outbrain
 * 23. (1h): Literature overview
 
-## March 2020 (20h)
+## March 2023 (24.5h)
 * 1. (1h): Deep-dive meeting with Outbrain
 * 4. (1h): Literature overview
 * 8. (2h): Watching Git flow tutorials, preparing and editing GitHub repo & project
@@ -25,6 +25,9 @@
 * 25. (1h): Documenting features, clustering features
 * 25. (2h): Building feature ranking & evaluation pipeline
 * 25. (1h): Exploring fuzzy Jaccard package
+* 26. (1h): Fixing and cleaning up pipeline
+* 26. (2h): Testing pipeline, testing jaccard and fuji
+* 26. (1.5h): mutual info ranking test, reliefF evaluation, documenting, etc. 
 
 
 ## Total: [total sum of hours]
