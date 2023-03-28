@@ -31,10 +31,12 @@ Contains code & stuff.
     * placeholder for full_data.csv
     * contains ground truth data
 
-
 * documentation subfolder (`/docs`)
   * contains feature descriptions
   * contains documentation of algorithm testing
+
+* results subfolder (`/img`)
+  * contains various visualizations of results (dendrograms, etc.)
 
 * results subfolder (`/results`)
   * contains various results of algorithm testing
