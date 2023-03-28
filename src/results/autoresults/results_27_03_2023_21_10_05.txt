@@ -1,0 +1,21 @@
+Sampling: 100 samples
+Ranking method: mutual_info_score
+Evaluation method: fuzzy_jaccard
+Execution time: 0.08300113677978516
+AUC singles: 0.8253806342788357
+AUC first gen: 0.7301303802778452
+Ranking:
+      feature     score
+99  feature99  0.658446
+98  feature98  0.658446
+56  feature56  0.148737
+66  feature66  0.109855
+91  feature91  0.108858
+..        ...       ...
+62  feature62  0.000000
+63  feature63  0.000000
+30  feature30  0.000000
+67  feature67  0.000000
+65  feature65  0.000000
+
+[100 rows x 2 columns]
