@@ -11,6 +11,7 @@ import helper_functions as hf
 class RankEval:
     def __init__(self, data, rank_method,
                  eval_method=eval_algos.jaccard_full_score,
+                 seed=0, subsampling_proportion= 1,
                  X=None, y=None,
                  exec_time=None,
                  ranking=None, scores=None,
@@ -20,6 +21,8 @@ class RankEval:
         self.data = data
         self.rank_method = rank_method
         self.eval_method = eval_method
+        self.seed = seed
+        self.subsampling_proportion = subsampling_proportion
         self.X = X
         self.y = y
         self.exec_time = exec_time
@@ -29,18 +32,35 @@ class RankEval:
         self.ground_truth_first_gen = ground_truth_first_gen
         self.eval_res_singles = eval_res_singles
         self.eval_res_first_gen = eval_res_first_gen
+        self.sample_indices = None
+
+    def get_sample_indices(self):
+        """
+        Get indices of a random sample of the data.
+
+        :return: None (Updates its own sample_indices attribute.)
+        """
+        if self.sample_indices is None:
+            self.sample_indices = np.random.choice(
+                self.data.index, size=int(self.data.shape[0] * self.subsampling_proportion),
+                replace=False, random_state=self.seed)
 
     def get_X_y(self):
         """
-        Get X and y from the data.
+        Get X and y from the data. Uses the sample_indices attribute if it is not None.
 
         :return: None (Updates its own X and y attributes.)
         """
-        y = self.data['info_click_valid']
-        X = self.data.drop(['info_click_valid'], axis=1)
+        if self.sample_indices is not None:
+            y = self.data.loc[self.sample_indices, 'info_click_valid']
+            X = self.data.loc[self.sample_indices].drop(['info_click_valid'], axis=1)
+        else:
+            y = self.data['info_click_valid']
+            X = self.data.drop(['info_click_valid'], axis=1)
 
         self.X = X
         self.y = y
+
 
     def get_ground_truth(self):
         """
@@ -190,11 +210,12 @@ class RankEval:
 
 if __name__ == "__main__":
     data = pd.read_csv('data/full_data.csv')
-    data = data.head(100)
+    #data = data.head(100)
 
     rank_method = rank_algos.mutual_info_score
     eval_method = eval_algos.jaccard_full_score
     evaluator = RankEval(data, rank_method, eval_method)
-
+    evaluator = RankEval(data, rank_method, eval_method, subsampling_proportion=0.001)
+    
     print(evaluator.get_eval_res())
 
