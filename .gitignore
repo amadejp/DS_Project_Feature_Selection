@@ -14,6 +14,7 @@ src/data/__MACOSX
 src/data/full_data.csv.zip
 src/data/__MACOSX/._full_data.csv
 src/sandbox.py
+src/venv/
 
 ### TEMPLATE:
 

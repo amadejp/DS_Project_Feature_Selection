@@ -8,7 +8,7 @@ More specifically, our goal is to test different feature ranking algorithms, in 
 
 ## Reproducibility
 
-All code in `/src` should be reproducible. You need venv with Python 3.10 and install all packages from `/src/requirements.txt`.
+All code in `/src` should be reproducible. You need venv with Python 3.10.8 and install all packages from `/src/requirements.txt`.
 
 NOTE! The data is not included in this repository, as it is not publicly available and is not ours to distribute. Furthermore, the data is too large to be stored in this repository.
 So please acquire the data from Outbrain and place it in `/src/data` folder (either `full_data.csv.zip` or `full_data.csv`).
