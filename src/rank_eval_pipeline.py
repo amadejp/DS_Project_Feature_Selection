@@ -5,19 +5,20 @@ from datetime import datetime
 
 import eval_algos
 import rank_algos
-import helper_functions as hf
 
 
 class RankEval:
     def __init__(self, data, rank_method,
                  eval_method=eval_algos.jaccard_full_score,
-                 seed=0, subsampling_proportion=1.0):
+                 seed=0, subsampling_proportion=1.0,
+                 features_to_remove=None):
 
         self.data = data
         self.rank_method = rank_method
         self.eval_method = eval_method
         self.seed = seed
         self.subsampling_proportion = subsampling_proportion
+        self.features_to_remove = features_to_remove
         self.X = None
         self.y = None
         self.exec_time = None
@@ -63,6 +64,15 @@ class RankEval:
         self.X = self.X.astype('category')    # convert to categorical
         self.X = self.X.apply(lambda x: pd.factorize(x)[0])   # factorize
 
+    def remove_features(self):
+        """
+        Remove features from the dataframe (X). List of features to remove is given in the features_to_remove attribute.
+
+        :return: None (Updates its own X attribute.)
+        """
+        if self.features_to_remove is not None:
+            self.X = self.X.drop(self.features_to_remove, axis=1)
+
     def get_X_y(self):
         """
         Get X and y from the data. Uses the sample_indices attribute if it is not None.
@@ -79,6 +89,7 @@ class RankEval:
             self.y = self.data['info_click_valid']
             self.X = self.data.drop(['info_click_valid'], axis=1)
 
+        self.remove_features()
         self.preprocess()
 
     def get_ground_truth(self):
@@ -104,6 +115,7 @@ class RankEval:
         """
         Sort ground truth by feature names as they are in self.ranking.
         Also converts ground truth to numpy array of floats.
+        Also removes features that are not in the ranking.
 
         :return: None (Only updates its own ground_truth_singles and ground_truth_first_gen attributes.)
         """
@@ -118,7 +130,6 @@ class RankEval:
         self.ground_truth_singles = np.array(self.ground_truth_singles)
         self.ground_truth_first_gen = np.array(self.ground_truth_first_gen)
 
-    @hf.measure_runtime
     def rank(self):
         """
         Feature ranking using the rank_method provided.
@@ -172,7 +183,7 @@ class RankEval:
         self.eval_res_singles = evaluation_singles
         self.eval_res_first_gen = evaluation_first_gen
 
-    def evaluate_and_log(self, sampling, file_dir='results/autoresults/'):
+    def evaluate_and_log(self, file_dir='results/autoresults/'):
         """
         Evaluates the ranking by comparing it to both ground truths and writes results to txt file.
 
@@ -185,13 +196,16 @@ class RankEval:
         now = now.strftime("%d_%m_%Y_%H_%M_%S")
 
         with open(f'{file_dir}result_{now}.txt', 'a') as f:
-            f.write(f"Sampling: {sampling}\n")
+            f.write(f"Sampling proportion: {self.subsampling_proportion}\n")
             f.write(f"Ranking method: {self.rank_method.__name__}\n")
             f.write(f"Evaluation method: {self.eval_method.__name__}\n")
             f.write(f"Execution time [sec]: {self.exec_time}\n")
             f.write(f"Result singles: {self.eval_res_singles}\n")
             f.write(f"Result first gen: {self.eval_res_first_gen}\n")
+            f.write(f"Final score singles: {self.eval_res_singles[1]}\n")
+            f.write(f"Final score first gen: {self.eval_res_first_gen[1]}\n")
             f.write(f"Ranking:\n{self.ranking}\n")
+            f.write(f"Removed features:\n{self.features_to_remove}\n")
 
     def get_ranking(self):
         """
@@ -229,14 +243,22 @@ class RankEval:
 
 if __name__ == "__main__":
     data = pd.read_csv('data/full_data.csv')
+    data = data.head(1000)
+
+    features_to_remove = ["feature0", "feature1", "feature2", "feature3", "feature4", "feature99", "feature98"]
 
     rank_method = rank_algos.mutual_info_score
-    eval_method = eval_algos.jaccard_full_score
-    #evaluator = RankEval(data, rank_method, eval_method)
+    evaluator = RankEval(data, rank_method, features_to_remove=features_to_remove)
+    results = evaluator.get_eval_res()
+    evaluator.evaluate_and_log()
+    print(results[0][1], results[1][1])
 
-    for i in range(5):
+    '''for i in range(5):
         evaluator = RankEval(data, rank_method, eval_method, subsampling_proportion=0.001, seed=1)
         results = evaluator.get_eval_res()
         print(results[0][1])
         print(results[1][1])
+
+    #evaluator.evaluate_and_log()
+    '''
 

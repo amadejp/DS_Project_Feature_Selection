@@ -1,11 +1,11 @@
 import numpy as np
 import ReliefF
+import pandas as pd
 import reliefe
 from skrebate import SURF, SURFstar, MultiSURF, MultiSURFstar
 import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif
-
+from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
 
 
 def mutual_info_score(X, y):
@@ -76,3 +76,25 @@ def chi2_score(X, y):
     ranker.fit(np.array(X), np.array(y))
 
     return X.columns, ranker.scores_
+
+
+def pearson_correlation_score(X, y):
+    correlations = X.apply(lambda x: x.corr(y))
+
+    return X.columns, correlations
+
+
+def anova_f_score(X, y):
+    ranker = SelectKBest(score_func=f_classif, k='all')
+    ranker.fit(np.array(X), np.array(y))
+
+    return X.columns, ranker.scores_
+
+
+if __name__ == "__main__":
+    data = pd.read_csv('data/full_data.csv')
+    data = data.head(1000)
+
+    X = data.drop('info_click_valid', axis=1)
+    y = data['info_click_valid']
+    print(pearson_correlation_score(X, y))
