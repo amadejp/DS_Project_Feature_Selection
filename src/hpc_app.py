@@ -13,7 +13,7 @@ def main(args):
     algos = {
         'mutual_info_score': rank_algos.mutual_info_score,
         'ReliefF_score': rank_algos.ReliefF_score,
-        'ReliefE_score': rank_algos.ReliefE_score,
+        #'ReliefE_score': rank_algos.ReliefE_score,
         'SURF_score': rank_algos.SURF_score,
         'SURFstar_score': rank_algos.SURFstar_score,
         'MultiSURF_score': rank_algos.MultiSURF_score,

@@ -1,7 +1,7 @@
 import numpy as np
 import ReliefF
 import pandas as pd
-import reliefe
+#import reliefe
 from skrebate import SURF, SURFstar, MultiSURF, MultiSURFstar
 import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier
@@ -19,11 +19,11 @@ def ReliefF_score(X, y):
 
     return X.columns, ranker.feature_scores
 
-def ReliefE_score(X, y):
-    ranker = reliefe.ReliefE()
-    ranker.fit(np.array(X), np.array(y))
+# def ReliefE_score(X, y):
+#     ranker = reliefe.ReliefE()
+#     ranker.fit(np.array(X), np.array(y))
 
-    return X.columns, ranker.feature_importances_
+#     return X.columns, ranker.feature_importances_
 
 def SURF_score(X, y):
     """Warning: This will use all available cores by default.
