@@ -35,6 +35,7 @@ def main(args):
 
     # get the scores
     results = RE.get_scores()
+    evaluations = RE.get_eval_res()
 
     # create a dictionary to store the results
     output_dict = {
@@ -44,11 +45,16 @@ def main(args):
         'results': {
             'features': results[0].tolist(),
             'scores': results[1].tolist()
+        },
+        'evaluations': {
+            'eval_method': str(RE.eval_method.__name__),
+            'singles': evaluations[0],
+            'first_gen': evaluations[1]
         }
     }
 
     # save results to a JSON file
-    output_file_name = f'results_deleteme/{args.rank_algo}_seed{args.seed}_sub{args.subsample}.json'
+    output_file_name = f'results/{args.rank_algo}_seed{args.seed}_sub{args.subsample}.json'
     with open(output_file_name, 'w') as f:
         json.dump(output_dict, f)
 
