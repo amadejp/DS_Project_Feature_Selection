@@ -1,7 +1,7 @@
 from numbers_parser import Document
 import pandas as pd
 
-# from fuji import fuji
+from fuji import fuji
 
 
 def ground_truth_from_numbers(filename,
@@ -76,20 +76,20 @@ def jaccard_k(a, b, k):
     return len(set(a[:k]).intersection(set(b[:k]))) / len(set(a[:k]).union(set(b[:k])))
 
 
-# def jaccard_full_score(a, b):
-#     """
-#     Compute jaccard similarity between two lists of scores as implemented in the fuji library.
-#     I.e. average of the jaccards for each k.
+def jaccard_full_score(a, b):
+    """
+    Compute jaccard similarity between two lists of scores as implemented in the fuji library.
+    I.e. average of the jaccards for each k.
 
-#     :param a: list 1
-#     :param b: list 2
-#     :return: jaccard similarity
-#     """
-#     return fuji.compute_similarity(a, b, "jaccard")
+    :param a: list 1
+    :param b: list 2
+    :return: jaccard similarity
+    """
+    return fuji.compute_similarity(a, b, "jaccard")
 
 
-# def fuzzy_jaccard(a, b):
-#     return fuji.compute_similarity(a, b, "fuzzy_jaccard")
+def fuzzy_jaccard(a, b):
+    return fuji.compute_similarity(a, b, "fuzzy_jaccard")
 
 
 if __name__ == "__main__":
