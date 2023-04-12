@@ -44,10 +44,10 @@
 \Authors{Leon Hvastja, Amadej Pavšič}
 
 % Advisors
-\affiliation{\textit{Advisors: doc. dr. Jure Demšar, dr. Blaž Mramor, Blaž Škrlj}}
+\affiliation{\textit{Advisors: Jure Demšar, Blaž Mramor, Blaž Škrlj}}
 
 % Keywords
-\Keywords{feature selection, feature ranking, machine learning, big data, sparse features ...}
+\Keywords{feature selection, feature ranking, machine learning, big data, sparse features}
 \newcommand{\keywordname}{Keywords}
 
 
@@ -56,7 +56,6 @@
 %----------------------------------------------------------------------------------------
 
 \Abstract{
-
 Feature selection is a common problem in machine learning, especially when dealing with sparse datasets. In this project, we explore various out-of-the-box algorithms for feature selection, including those based on simple machine learning models and those derived from the relief algorithm. Our task is to implement, develop, and test these algorithms for smarter feature selection, enabling quicker and more efficient feature selection than using greedy algorithms. We will test the performance of our developed approaches against the optimal solution found by the greedy algorithm.
 
 }
@@ -80,9 +79,9 @@ Feature selection is a common problem in machine learning, especially when deali
 
 \section*{Introduction}
 
-We were given a dataset from Outbrain's regular operations which underwent minimal preprocessing tailored to our project. The company provided us with their feature scores derived using a greedy approach as a reference. Our aim is to explore if the feature selection process can be expedited while minimizing trade-offs. The project goal is to devise an intelligent approach to select features from the dataset.
+Our project aims to explore feature selection methods for Outbrain. The company provided us with a dataset from their regular operations. The dataset underwent minimal preprocessing specific to our project. As a reference, the company provided us with their internally generated feature scores. Our aim is to explore if the feature selection process can be expedited while minimizing trade-offs. The project goal is to devise an intelligent approach to select features from the dataset.
 
-We hypothesize that simple machine learning models can produce quick feature selection results, but models that account for feature interactions will be more accurate at the expense of longer computational times. Additionally, we anticipate that a heuristic feature pre-selection approach can improve processing time for complex algorithms without sacrificing scoring accuracy, which will be one of our main points of focus going forward.  
+We hypothesize that simple machine learning models can produce quick feature selection results, but models that account for feature interactions will be more accurate at the expense of longer computational times. Additionally, we anticipate that a heuristic feature pre-selection approach can improve processing time for complex algorithms without sacrificing scoring accuracy. 
 
 	% These latex files are intended to serve as a the template for the FRI Data Science Project Competition. If you find mistakes in the template or have problems using it, please consult Jure Demšar (\href{mailto:jure.demsar@fri.uni-lj.si}{jure.demsar@fri.uni-lj.si}).
 	
@@ -93,32 +92,30 @@ We hypothesize that simple machine learning models can produce quick feature sel
 
 \section*{Exploratory Data Analysis}
 
-We conducted exploratory data analysis (EDA) to gain insights into the given dataset, which was provided by Outbrain in a \textit{csv} file format. The main purpose was to familiarize ourselves with the data and start developing ideas for intelligent preprocessing. The dataset logs ad clicks and comprises over 1.5 million samples with 100 features and a binary label indicating whether the ad was clicked or not. All features are anonymized with numbered labels such as \textbf{feature0}. The data contains nominal categorical data, and all values were transformed using feature hashing making them impossible to interpret for us. There were no missing values in the dataset since these were also hashed into integers, but their specific values are unknown. 
+\begin{figure*}
+	\includegraphics[width=\linewidth]{img/block_diagram_cropped.png}
+	\caption{\textbf{RankEval class.} Internal process of an evaluation.}
+	\label{fig:block_diagram}
+\end{figure*}
+
+We conducted exploratory data analysis (EDA). The main purpose was to familiarize ourselves with the data and start developing ideas for intelligent preprocessing. The dataset logs ad clicks and comprises over 1.5 million samples with 100 features and a binary label indicating whether the ad was clicked or not. All features are anonymized with numbered labels such as \textbf{feature0}. The data contains nominal categorical data, and all values were transformed using feature hashing making them impossible to interpret for us. There were no missing values in the dataset since these were also hashed into integers, but their specific values are unknown. 
 
 \subsection*{Feature cardinality}
-Cardinality is one of the crucial feature properties we analyzed in our EDA. We have observed that 7 features contain only one unique value, rendering them uninformative. 8 features as well as the label are binary, while 20 features have more than 1000 unique values. However, some features have very high cardinality, which may make them impractical for making predictions. Features with the highest cardinality are shown in \figurename~\ref{fig:cardinality}. 
-
-
-\begin{figure}[ht]\centering 
-	\includegraphics[width=\linewidth]{img/top10_features_unique_values.png}
-	\caption{\textbf{High cardinality features.} Ten features with highest cardinality.}
-	\label{fig:cardinality}
-\end{figure}
-
+Cardinality is one of the crucial feature properties we analyzed in our EDA. We have observed that 7 features contain only one unique value, rendering them uninformative. 8 features as well as the label are binary, while 20 features have more than 1000 unique values. However, some features have very high cardinality, which may make them impractical for making predictions.
 
 \subsection*{Distribution of feature values}
 The label exhibits an 80-20 ratio, indicating a bias toward the ad not being clicked. This is already a result of undersampling from the original data, which had a much higher degree of class imbalance. Additionally, the features have varying value distributions, and we observed that 13 features have one highly prevalent value, occurring in over 90\% of the samples. We inferred that these values very likely represent missing values, implying that the corresponding features are highly sparse. 
 
 \subsection*{Feature correlation}
-We utilized Pearson's coefficient (PC) to investigate the connection between characteristics and created a heatmap to demonstrate the findings. Our observations revealed a few sets of highly correlated attributes, including those ranging from 81 to 89, which are also negatively associated with the label. A dendrogram was employed to represent this clustering visually.
+We utilized Pearson's coefficient (PC) to investigate the connection between characteristics and created a heatmap to demonstrate the findings. Our observations revealed a few sets of highly correlated attributes, including those ranging from 81 to 89, which are also negatively associated with the label.
 
 It's worth noting that features 98 and 99, have a perfect correlation (PC = 1) with each other and the label, effectively making them a flawless predictor of the label. These characteristics were engineered into the data, so they cannot be used for our feature selection.
 
 \section*{Rank and Evaluation Pipeline}
 
-We have developed a framework for evaluating features that streamlines our algorithm testing process. This pipeline handles data reading, pre-processing, feature score calculations, and evaluations against our ground truth ranking.
+We have developed a framework for evaluating features that streamlines our algorithm testing process. This pipeline handles data reading, pre-processing, feature score calculations, and evaluations against our ground truth ranking. Its flowchart is shown in \figurename~\ref{fig:block_diagram}.
 
-However, due to the large size of our dataset, one of the main challenges is managing computational complexity. Some ranking algorithms take hours to process even a small portion of the dataset, making it infeasible to apply them to the entire dataset. To tackle this issue, we plan to use our framework to run batches of evaluations on a high-power computing network. While this will allow us to perform more computations, it will not completely solve our computing complexity problem.
+% However, due to the large size of our dataset, one of the main challenges is managing computational complexity. Some ranking algorithms take hours to process even a small portion of the dataset, making it infeasible to apply them to the entire dataset. To tackle this issue, we plan to use our framework to run batches of evaluations on a high-power computing network. While this will allow us to perform more computations, it will not completely solve our computing complexity problem.
 
 \subsection*{Preprocessing}
 To reduce the computational load, our initial strategy involves subsampling by rows. This means selecting a random subset of data points to work with. We aim to use this approach to gain insight into the behavior of our feature scoring algorithms with larger datasets, and possibly identify an effective subsampling strategy for very large datasets. 
@@ -127,24 +124,32 @@ We also perform factorization as a preprocessing step. This involves transformin
 
 \subsection*{Ranking algorithms}
 
-There are many feature ranking algorithms and paradigms to choose from. The algorithms we chose to base our approach on fall into three categories.
+The algorithms we chose to base our approaches on fall into the following two categories:
 
-\begin{enumerate}
-    \item Classical approaches
-    \item ML derived approaches
-    \item Relief derived approaches
-\end{enumerate}
+\begin{description}
+    \item [Filter methods] rank features independently of any machine learning algorithm.
+    \item [Wrapper methods] use ML algorithms to implicitly rank features.
+\end{description}
 
-The conventional methods for feature selection, such as chi-squared, Pearson correlation, ANOVA, and mutual information, fall under the category of classical approaches. They are usually quick, and their computation complexity enables us to evaluate them on the complete dataset.
+Our selection of filter methods includes widely-used approaches that rely on statistical tests, along with a suite of feature ranking algorithms derived from the Relief algorithm. The latter is capable of identifying feature interactions, but its time complexity is significantly higher than that of other methods.
 
-The second set of approaches involves constructing a simple machine learning model on the dataset or a subset of it and deducing the implicit feature importance from the model. Most machine learning models contain some kind of implicit feature importance in the form of individual feature weights. We were interested in examining how these rankings would fare on our data. These approaches have varying time complexities.
+The wrapper methods use some of the most common and simple ML models such as random forests and XGBoost. The aim here is to build a model and extract the implicit feature importance from the model.
 
-The third category comprises algorithms based on the relief algorithm. One of the most notable characteristics of this group is that they consider feature interactions when performing the ranking. Regrettably, their time complexity is primarily quadratic, making it impractical to run on our complete dataset without significant preprocessing.
+% The conventional methods for feature selection, such as chi-squared, Pearson correlation, ANOVA, and mutual information, fall under the category of classical approaches. They are usually quick, and their computation complexity enables us to evaluate them on the complete dataset.
+
+% The second set of approaches involves constructing a simple machine learning model on the dataset or a subset of it and deducing the implicit feature importance from the model. Most machine learning models contain some kind of implicit feature importance in the form of individual feature weights. We were interested in examining how these rankings would fare on our data. These approaches have varying time complexities.
+
+% The third category comprises algorithms based on the relief algorithm. One of the most notable characteristics of this group is that they consider feature interactions when performing the ranking. Regrettably, their time complexity is primarily quadratic, making it impractical to run on our complete dataset without significant preprocessing.
 
 \subsection*{Ranking Evaluation}
-After some experimenting with Fuzzy Jaccard \cite{Petkovic2021_fuji} score, we have together with mentors decided to stick with the simple Jaccard index for evaluating our rankings. 
+We utilize the Jaccard index to assess our outcomes. Our pipeline output is an array of 100 scores representing all potential top k feature assessments. The score assigned to the i-th position provides insight into the percentage of overlap between the top i features in our generated ranking and the ground truth in our reference set. A visual example of such evaluation is presented on \figurename~\ref{fig:evaluation_comparison}.
 
-We use such implementation of Jaccard, which calculates the Jaccard index for all possible "top k features". I.e. for dataset with all 100 features, we have a list of 100 Jaccard scores, and an average of them. 
+
+\begin{figure}
+	\includegraphics[width=\linewidth]{img/report_top_k_scores_first_gen.png}
+	\caption{\textbf{Ranking evaluation comparison for "first generation" ground truth.} Jaccard score for each top k features for three different ranking algorithms and randomly shuffled ranking as a baseline.}
+	\label{fig:evaluation_comparison}
+\end{figure}
 
 
 % \subsection*{Code examples}
@@ -201,8 +206,8 @@ To start our project, we focused on establishing baselines and evaluating variou
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
-\bibliographystyle{unsrt}
-\bibliography{report}
+% \bibliographystyle{unsrt}
+% \bibliography{report}
 
 
 \end{document}

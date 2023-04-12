@@ -81,12 +81,25 @@ def jaccard_full_score(a, b):
     Compute jaccard similarity between two lists of scores as implemented in the fuji library.
     I.e. average of the jaccards for each k.
 
-    :param a: list 1
-    :param b: list 2
+    :param a: list 1 of scores
+    :param b: list 2 of scores with same order as list 1
     :return: jaccard similarity
     """
     return fuji.compute_similarity(a, b, "jaccard")
 
+
+def jaccard_full_score_string(a, b):
+    """
+    Compute jaccard similarity between two lists of feature names as implemented in the fuji library.
+    I.e. average of the jaccards for each k.
+
+    :param a: list 1 of strings (feature names) of any order
+    :param b: list 2 of strings (feature names) of any order
+    :return: jaccard similarity
+    """
+    # convert strings to 1-100 integers
+    a = [int(x.replace("feature", "")) for x in a]
+    print(a)
 
 def fuzzy_jaccard(a, b):
     return fuji.compute_similarity(a, b, "fuzzy_jaccard")
@@ -96,9 +109,13 @@ if __name__ == "__main__":
     #print(get_ground_truths())
     #print(get_ground_truths_ordered())
 
-    gd_singles, gd_first_gen = get_ground_truths()
+    '''gd_singles, gd_first_gen = get_ground_truths()
 
     print(gd_singles)
-    print(gd_first_gen)
+    print(gd_first_gen)'''
+
+    a = ["feature1", "feature2", "feature3", "feature4", "feature5"]
+    b = ["feature2", "feature1", "feature5", "feature4", "feature3"]
+    print(jaccard_full_score_string(a, b))
 
 
