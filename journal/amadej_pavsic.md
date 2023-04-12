@@ -34,10 +34,19 @@
 * 29\. (1h): meeting with Outbrain
 * 31\. (1h): internal team meeting to sync up, delegate tasks...
 
-## April 2023 (0h)
+## April 2023 (17h)
 * 4\. (2h): Summarizing EDA for interim report  
 * 4\. (3h): Rewriting rank_eval pipeline
 * 5\. (2h): Rewriting&Testing&Documenting rank_eval pipeline, testing venv and requirements.txt
+* 5\. (0.5h): Internal team meeting for venv & quick sync
+* 8\. (0.5h): Internal team meeting
+* 8\. (2h): Implementing preprocessing & feature removal into pipeline
+* 9\. (0.5h): Finishing up the aforementioned implementation
+* 9\. (1h): Writing interim report (pipeline)
+* 9\. (2h): Researching, implementing extra ranking algorithms & testing
+* 10\. (1h): Debugging reproducibility issues
+* 10\. (1h): Deep analysis of mutual info ranking
+* 10\. (1.5h): Testing mutual info ranking when removing features
 
 
 ## Total: [total sum of hours]

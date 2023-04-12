@@ -73,7 +73,7 @@ def jaccard_k(a, b, k):
     :param b: list 2
     :return:
     """
-    return fuji.compute_similarity(a, b, "jaccard")[0][k-1]
+    return len(set(a[:k]).intersection(set(b[:k]))) / len(set(a[:k]).union(set(b[:k])))
 
 
 def jaccard_full_score(a, b):

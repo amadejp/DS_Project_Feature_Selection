@@ -1,0 +1,12 @@
+Sampling proportion: 0.001
+Ranking method: mutual_info_score
+Evaluation method: jaccard_full_score
+Execution time [sec]: 0.06999969482421875
+Result singles: ([1.0, 1.0, 1.0, 0.6, 0.6666666666666666, 0.7142857142857143, 0.5555555555555556, 0.6, 0.5, 0.5384615384615384, 0.6923076923076923, 0.6, 0.625, 0.75, 0.875, 1.0], 0.7144851444851443)
+Result first gen: ([1.0, 1.0, 0.5, 0.3333333333333333, 0.6666666666666666, 0.7142857142857143, 0.75, 1.0, 0.8, 0.8181818181818182, 0.8333333333333334, 0.8461538461538461, 1.0, 1.0, 1.0, 1.0], 0.8174636474636474)
+Ranking:
+Index(['feature98', 'feature99', 'feature84', 'feature87', 'feature86',
+       'feature89', 'feature88', 'feature85', 'feature96', 'feature90',
+       'feature93', 'feature97', 'feature91', 'feature92', 'feature94',
+       'feature95'],
+      dtype='object')
