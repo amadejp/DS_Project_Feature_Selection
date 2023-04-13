@@ -56,8 +56,7 @@
 %----------------------------------------------------------------------------------------
 
 \Abstract{
-Feature selection is a common problem in machine learning, especially when dealing with sparse datasets. In this project, we explore various out-of-the-box algorithms for feature selection, including those based on simple machine learning models and those derived from the relief algorithm. Our task is to implement, develop, and test these algorithms for smarter feature selection, enabling quicker and more efficient feature selection than using greedy algorithms. We will test the performance of our developed approaches against the optimal solution found by the greedy algorithm.
-
+Feature selection is a common problem in machine learning, especially when dealing with sparse datasets. In this project, we explore various out-of-the-box algorithms for feature selection, including those based on simple machine learning models and those derived from the relief algorithm. Our task is to implement, develop, and test these algorithms for smarter feature selection, enabling quicker and more efficient feature selection than using greedy algorithms. We will test the accuracy of our developed approaches against the optimal solution found by the greedy algorithm.
 }
 
 %----------------------------------------------------------------------------------------
@@ -68,10 +67,9 @@ Feature selection is a common problem in machine learning, especially when deali
 \flushbottom 
 
 % Print the title and abstract box
-\maketitle 
-
+\maketitle
 % Removes page numbering from the first page
-\thispagestyle{empty} 
+\thispagestyle{empty}
 
 %----------------------------------------------------------------------------------------
 %	ARTICLE CONTENTS
@@ -79,9 +77,13 @@ Feature selection is a common problem in machine learning, especially when deali
 
 \section*{Introduction}
 
-Our project aims to explore feature selection methods for Outbrain. The company provided us with a dataset from their regular operations. The dataset underwent minimal preprocessing specific to our project. As a reference, the company provided us with their internally generated feature scores. Our aim is to explore if the feature selection process can be expedited while minimizing trade-offs. The project goal is to devise an intelligent approach to select features from the dataset.
+Feature selection is the process of reducing the number of input variables when building a predictive model. The aim is to reduce computational cost and in some cases improve model accuracy.
 
-We hypothesize that simple machine learning models can produce quick feature selection results, but models that account for feature interactions will be more accurate at the expense of longer computational times. Additionally, we anticipate that a heuristic feature pre-selection approach can improve processing time for complex algorithms without sacrificing scoring accuracy. 
+Our project aims to explore feature selection methods for Outbrain, a web recommendation platform. They provided us with data from their regular operations, which is typically large, sparse and requires time-efficient use. The dataset underwent minimal preprocessing specific to our project. We were also provided with their internally generated feature scores to use as a reference.
+
+We hypothesize that simpler models can produce quick feature selection results, but models that account for feature interactions will be more accurate at the expense of longer computations. Additionally, we anticipate that a heuristic feature pre-selection can improve processing time for some algorithms without sacrificing accuracy. 
+
+The main goal of our project is thus the development of an efficient and intelligent feature selection approach given the specifics and constraints of Outbrain's domain of work.
 
 	% These latex files are intended to serve as a the template for the FRI Data Science Project Competition. If you find mistakes in the template or have problems using it, please consult Jure Demšar (\href{mailto:jure.demsar@fri.uni-lj.si}{jure.demsar@fri.uni-lj.si}).
 	
@@ -94,22 +96,23 @@ We hypothesize that simple machine learning models can produce quick feature sel
 
 \begin{figure*}
 	\includegraphics[width=\linewidth]{img/block_diagram_cropped.png}
-	\caption{\textbf{RankEval class.} Internal process of an evaluation.}
+    \captionsetup{justification=centering}
+	\caption{\textbf{A visualization of our feature selection pipeline.}\\ This figure visualizes the steps required for feature selection in our framework.}
 	\label{fig:block_diagram}
 \end{figure*}
 
-We conducted exploratory data analysis (EDA). The main purpose was to familiarize ourselves with the data and start developing ideas for intelligent preprocessing. The dataset logs ad clicks and comprises over 1.5 million samples with 100 features and a binary label indicating whether the ad was clicked or not. All features are anonymized with numbered labels such as \textbf{feature0}. The data contains nominal categorical data, and all values were transformed using feature hashing making them impossible to interpret for us. There were no missing values in the dataset since these were also hashed into integers, but their specific values are unknown. 
+The main purpose of exploratory data analysis (EDA) is to familiarize ourselves with the data and start developing ideas for intelligent preprocessing. The dataset logs ad clicks and comprises over 1.5 million samples with 100 features and a binary label indicating whether the ad was clicked or not. All features are anonymized with numerical labels such as \textbf{feature0}. The data contains only categorical features whose values were transformed using feature hashing making them impossible to interpret for us. There were no missing values in the dataset since these were also hashed into integers, but their specific values are unknown. 
 
-\subsection*{Feature cardinality}
-Cardinality is one of the crucial feature properties we analyzed in our EDA. We have observed that 7 features contain only one unique value, rendering them uninformative. 8 features as well as the label are binary, while 20 features have more than 1000 unique values. However, some features have very high cardinality, which may make them impractical for making predictions.
+% \subsection*{Feature cardinality}
+\textbf{Cardinality} is one of the crucial feature properties we analyzed in our EDA. We have observed that 7 features contain only one unique value, rendering them uninformative. 8 features as well as the label are binary, while 20 features have more than 1000 unique values. However, some features have very high cardinality, which may make them impractical for making predictions.
 
 \subsection*{Distribution of feature values}
-The label exhibits an 80-20 ratio, indicating a bias toward the ad not being clicked. This is already a result of undersampling from the original data, which had a much higher degree of class imbalance. Additionally, the features have varying value distributions, and we observed that 13 features have one highly prevalent value, occurring in over 90\% of the samples. We inferred that these values very likely represent missing values, implying that the corresponding features are highly sparse. 
+The label exhibits an 80-20 ratio, indicating a bias toward the ad not being clicked. Note that our dataset was created by undersampling the original data, which had a label ratio closer to 200-1. Additionally, the features have varying value distributions, and we observed that 13 features have one highly prevalent value, occurring in over 90\% of the samples. We inferred that these values very likely represent missing values, implying that the corresponding features are highly sparse. 
 
 \subsection*{Feature correlation}
-We utilized Pearson's coefficient (PC) to investigate the connection between characteristics and created a heatmap to demonstrate the findings. Our observations revealed a few sets of highly correlated attributes, including those ranging from 81 to 89, which are also negatively associated with the label.
+We utilized Pearson's coefficient (PC) to investigate the connections between features. Our observations revealed a few sets of highly correlated attributes, including those ranging from 81 to 89, which are also negatively associated with the label.
 
-It's worth noting that features 98 and 99, have a perfect correlation (PC = 1) with each other and the label, effectively making them a flawless predictor of the label. These characteristics were engineered into the data, so they cannot be used for our feature selection.
+It's worth noting that features 98 and 99, have a perfect correlation (PC = 1) with each other and the label, effectively making them a flawless predictor of the label. These characteristics were engineered into the data, so they cannot be used for our feature selection. But they can be useful for initial validation of our approaches as they should be on the top of the feature ranking process.
 
 \section*{Rank and Evaluation Pipeline}
 
@@ -124,16 +127,17 @@ We also perform factorization as a preprocessing step. This involves transformin
 
 \subsection*{Ranking algorithms}
 
-The algorithms we chose to base our approaches on fall into the following two categories:
+The algorithms we chose to base our approaches on fall into the following two categories: a) \textbf{Filter methods} (rank features independently of any machine learning algorithm) and b) \textbf{Wrapper methods} (use ML algorithms to implicitly rank features). 
 
-\begin{description}
-    \item [Filter methods] rank features independently of any machine learning algorithm.
-    \item [Wrapper methods] use ML algorithms to implicitly rank features.
-\end{description}
+%\begin{description}
+%    \item [Filter methods] rank features independently of any machine learning algorithm.
+%    \item [Wrapper methods] use ML algorithms to implicitly rank features.
+%\end{description}
+
 
 Our selection of filter methods includes widely-used approaches that rely on statistical tests, along with a suite of feature ranking algorithms derived from the Relief algorithm. The latter is capable of identifying feature interactions, but its time complexity is significantly higher than that of other methods.
 
-The wrapper methods use some of the most common and simple ML models such as random forests and XGBoost. The aim here is to build a model and extract the implicit feature importance from the model.
+The wrapper methods use some of the most common and simple ML models such as random forests and XGBoost. The aim here is to build simple models and extract the implicit feature importance from the model.
 
 % The conventional methods for feature selection, such as chi-squared, Pearson correlation, ANOVA, and mutual information, fall under the category of classical approaches. They are usually quick, and their computation complexity enables us to evaluate them on the complete dataset.
 
@@ -147,7 +151,7 @@ We utilize the Jaccard index to assess our outcomes. Our pipeline output is an a
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{img/report_top_k_scores_first_gen.png}
-	\caption{\textbf{Ranking evaluation comparison for "first generation" ground truth.} Jaccard score for each top k features for three different ranking algorithms and randomly shuffled ranking as a baseline.}
+	\caption{\textbf{Ranking evaluation comparison.} Jaccard score for each top k features for three different ranking algorithms and randomly permuted ranking as a baseline.}
 	\label{fig:evaluation_comparison}
 \end{figure}
 
