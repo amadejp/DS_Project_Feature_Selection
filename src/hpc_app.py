@@ -39,6 +39,7 @@ def main(args):
 
     # create a dictionary to store the results
     output_dict = {
+        'rank_algo': args.rank_algo,
         'seed': args.seed,
         'subsampling_proportion': args.subsample,
         'exec_time': RE.exec_time,
