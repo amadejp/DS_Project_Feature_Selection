@@ -3,11 +3,19 @@ import json
 import pandas as pd
 import rank_algos
 from rank_eval_pipeline import RankEval
+from helper_functions import generate_feature_hash
 
 
-def main(args):
+def main(args):   
     # load data
     data = pd.read_csv('data/full_data.csv')
+
+    # load features to remove from file, if specified
+    features_to_remove = set(args.drop_features)
+    if args.drop_features_file:
+        with open(args.drop_features_file, 'r') as f:
+            file_features = [line.strip() for line in f.readlines()]
+            features_to_remove.update(file_features)
 
     # create a dictionary that maps algorithm names to functions
     algos = {
@@ -31,8 +39,12 @@ def main(args):
     rank_algo = algos[args.rank_algo]
 
     # create the RankEval object
-    RE = RankEval(data, rank_algo, seed=args.seed, subsampling_proportion=args.subsample)
-
+    RE = RankEval(data, rank_algo, 
+                  seed=args.seed, 
+                  subsampling_proportion=args.subsample, 
+                  features_to_remove=list(features_to_remove))
+    
+    
     # get the scores
     results = RE.get_scores()
     evaluations = RE.get_eval_res()
@@ -55,7 +67,13 @@ def main(args):
     }
 
     # save results to a JSON file
-    output_file_name = f'results/{args.rank_algo}_seed{args.seed}_sub{args.subsample}.json'
+    if features_to_remove:
+        features_hash = generate_feature_hash(features_to_remove)
+        feature_str = features_hash
+    else:
+        feature_str = "all"
+
+    output_file_name = f'results/{args.rank_algo}_seed{args.seed}_sub{args.subsample}_features-{feature_str}.json'
     with open(output_file_name, 'w') as f:
         json.dump(output_dict, f)
 
@@ -71,6 +89,10 @@ if __name__ == '__main__':
                         help='The random seed to use')
     parser.add_argument('--subsample', type=float, default=0.1,
                         help='The proportion of data to subsample')
+    parser.add_argument('--drop-features', type=str, nargs='*', default=[],
+                        help='List of feature names to remove (e.g., --drop-features feature99 feature98)')
+    parser.add_argument('--drop-features-file', type=str, default=None,
+                        help='A file containing a list of feature names to remove, one per line')
     args = parser.parse_args()
 
     # call the main function with the command line arguments

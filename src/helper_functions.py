@@ -3,7 +3,23 @@
 import time
 import numpy as np
 import pandas as pd
+import hashlib
 
+
+def generate_feature_hash(features):
+    """
+    Takes a list of feature names as input and returns a unique
+    hash value that represents the combination of features. 
+
+    Parameters:
+    features (list): A list of feature names (strings) to be hashed.
+
+    Returns:
+    str: A short, unique hash value representing the input list of features.
+    """
+    sorted_features = sorted(features)
+    concatenated_features = ''.join(sorted_features)
+    return hashlib.sha1(concatenated_features.encode('utf-8')).hexdigest()[:8]
 
 def measure_runtime(func):
     """
