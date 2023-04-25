@@ -34,7 +34,7 @@
 * 29\. (1h): meeting with Outbrain
 * 31\. (1h): internal team meeting to sync up, delegate tasks...
 
-## April 2023 (35.5h)
+## April 2023 (40.5h)
 * 4\. (2h): Summarizing EDA for interim report  
 * 4\. (3h): Rewriting rank_eval pipeline
 * 5\. (3h): Rewriting&Testing&Documenting rank_eval pipeline, testing venv and requirements.txt
@@ -56,6 +56,9 @@
 * 23\. (3h): Implementing general plotting function for top k features
 * 24.\ (2h): Debugging general plotting function for top k features
 * 25\. (3h): Debugging mutual info ranking issues, regenerating results
-* 25\. (3h): Preparing plots for each ranking method
+* 25\. (2h): Preparing plots for each ranking method
+* 25\. (2h): Coding, optimizing random baseline function and bootstrap
+* 25\. (1h): Internal team meeting, debugging
+
 
 ## Total: [total sum of hours]

@@ -66,28 +66,40 @@ def sample_and_split(df, frac, seed = None, n = None):
     return np.array(subsample.iloc[:,1:]), np.array(subsample.iloc[:,0])
 
 
-def plot_ranking_results(json_files):
+def get_random_baseline(n=1000000):
+    """
+    Get the random baseline for a list of json files.
+
+    :param json_files: A list of json files.
+
+    :return: A dictionary containing the random baseline for each json file.
+    """
     gt = eval_algos.get_ground_truths_ordered()
     gt_first_gen = np.array(gt[1].index).copy()
+    k_list = np.arange(1, 101)
 
-    k_list = range(1, 101)
+    random_scores = np.zeros((n, len(k_list)))
 
-    # Your current implementation for generating random_scores_dict
-    random_scores_dict = {}
-    for i in range(100):
+    for i in range(n):
         np.random.shuffle(gt_first_gen)
-        for k in k_list:
-            if k not in random_scores_dict:
-                random_scores_dict[k] = []
+        for idx, k in enumerate(k_list):
             random_order = gt_first_gen.copy()
             np.random.shuffle(random_order)
-            random_scores_dict[k].append(eval_algos.jaccard_k(random_order[:k], gt_first_gen[:k], k))
+            random_scores[i, idx] = eval_algos.jaccard_k(random_order[:k], gt_first_gen[:k], k)
 
-    # Do bootstrap for each k
-    random_bootstrapped = {}
-    for k in k_list:
-        random_bootstrapped[k] = stats.bootstrap((random_scores_dict[k],), np.mean, confidence_level=0.95,
-                                                 n_resamples=100, method='percentile')
+    random_bootstrapped = np.apply_along_axis(
+        lambda x: stats.bootstrap(x, np.mean, confidence_level=0.95, n_resamples=100, method='percentile'), 0, random_scores
+    )
+
+    random_mean_list = np.mean(random_scores, axis=0)
+    random_ci_low_list = np.array([bootstrap_result.confidence_interval.low for bootstrap_result in random_bootstrapped])
+    random_ci_high_list = np.array([bootstrap_result.confidence_interval.high for bootstrap_result in random_bootstrapped])
+
+    return random_mean_list, random_ci_low_list, random_ci_high_list
+
+
+def plot_ranking_results(json_files, random_baseline):
+    k_list = range(1, 101)
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -104,16 +116,7 @@ def plot_ranking_results(json_files):
             ax.plot(ranking_results, label=f'{rank_algo} ({subsampling_proportion})',
                     color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
 
-    random_mean_list = []
-    random_ci_low_list = []
-    random_ci_high_list = []
-    for k in k_list:
-        random_mean = np.mean(random_scores_dict[k])
-        random_ci_low = random_bootstrapped[k].confidence_interval.low
-        random_ci_high = random_bootstrapped[k].confidence_interval.high
-        random_mean_list.append(random_mean)
-        random_ci_low_list.append(random_ci_low)
-        random_ci_high_list.append(random_ci_high)
+    random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
 
     ax.plot(random_mean_list, label='random ranking', color='grey')
     x = [k - 1 for k in k_list]
@@ -137,28 +140,8 @@ def plot_ranking_results(json_files):
     plt.show()
 
 
-def plot_ranking_results_same_algo(json_files):
-    gt = eval_algos.get_ground_truths_ordered()
-    gt_first_gen = np.array(gt[1].index).copy()
-
+def plot_ranking_results_same_algo(json_files, random_baseline):
     k_list = range(1, 101)
-
-    # Your current implementation for generating random_scores_dict
-    random_scores_dict = {}
-    for i in range(100):
-        np.random.shuffle(gt_first_gen)
-        for k in k_list:
-            if k not in random_scores_dict:
-                random_scores_dict[k] = []
-            random_order = gt_first_gen.copy()
-            np.random.shuffle(random_order)
-            random_scores_dict[k].append(eval_algos.jaccard_k(random_order[:k], gt_first_gen[:k], k))
-
-    # Do bootstrap for each k
-    random_bootstrapped = {}
-    for k in k_list:
-        random_bootstrapped[k] = stats.bootstrap((random_scores_dict[k],), np.mean, confidence_level=0.95,
-                                                 n_resamples=100, method='percentile')
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -181,16 +164,7 @@ def plot_ranking_results_same_algo(json_files):
             ax.plot(ranking_results, label=f'Subsample: {subsampling_proportion}, Time: {exec_time:.2f}s',
                     color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
 
-    random_mean_list = []
-    random_ci_low_list = []
-    random_ci_high_list = []
-    for k in k_list:
-        random_mean = np.mean(random_scores_dict[k])
-        random_ci_low = random_bootstrapped[k].confidence_interval.low
-        random_ci_high = random_bootstrapped[k].confidence_interval.high
-        random_mean_list.append(random_mean)
-        random_ci_low_list.append(random_ci_low)
-        random_ci_high_list.append(random_ci_high)
+    random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
 
     ax.plot(random_mean_list, label='random ranking', color='grey')
     x = [k - 1 for k in k_list]
