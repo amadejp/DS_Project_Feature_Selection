@@ -87,13 +87,11 @@ def get_random_baseline(n=1000000):
             np.random.shuffle(random_order)
             random_scores[i, idx] = eval_algos.jaccard_k(random_order[:k], gt_first_gen[:k], k)
 
-    random_bootstrapped = np.apply_along_axis(
-        lambda x: stats.bootstrap(x, np.mean, confidence_level=0.95, n_resamples=100, method='percentile'), 0, random_scores
-    )
-
     random_mean_list = np.mean(random_scores, axis=0)
-    random_ci_low_list = np.array([bootstrap_result.confidence_interval.low for bootstrap_result in random_bootstrapped])
-    random_ci_high_list = np.array([bootstrap_result.confidence_interval.high for bootstrap_result in random_bootstrapped])
+    random_se_list = np.std(random_scores, axis=0, ddof=1) / np.sqrt(n)
+
+    random_ci_low_list = random_mean_list - 1.96 * random_se_list
+    random_ci_high_list = random_mean_list + 1.96 * random_se_list
 
     return random_mean_list, random_ci_low_list, random_ci_high_list
 
