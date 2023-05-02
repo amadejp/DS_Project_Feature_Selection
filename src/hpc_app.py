@@ -30,7 +30,8 @@ def main(args):
         'random_forest_score': rank_algos.random_forest_score,
         'chi2_score': rank_algos.chi2_score,
         'pearson_correlation_score': rank_algos.pearson_correlation_score,
-        'anova_f_score': rank_algos.anova_f_score
+        'anova_f_score': rank_algos.anova_f_score,
+        'mrmr_score': rank_algos.mrmr_score
     }
     # set the rank algorithm based on the input argument
     if args.rank_algo not in algos:
