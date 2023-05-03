@@ -6,6 +6,7 @@ import pandas as pd
 import hashlib
 import json
 import scipy.stats as stats
+import math
 
 import matplotlib.pyplot as plt
 #from plotnine import ggplot, aes, geom_line, geom_ribbon, labs, theme, element_text, scale_color_manual
@@ -95,6 +96,27 @@ def get_random_baseline(n=1000000):
 
     return random_mean_list, random_ci_low_list, random_ci_high_list
 
+def get_true_baseline(T):
+    """
+    Replaces the old get_random_baseline with an analytical solution.
+
+    :param T: The number of features we are ranking.
+
+    :return: A numpy array containing the expected value for a random permutaiton for each k.
+    """
+    def probability(i, j, t, T):
+        return math.comb(t, i) * math.comb(T - t, j) / math.comb(T, t)
+
+    def expected_score(t, T):
+        e_t = 0
+        for i in range(t + 1):
+            j = t - i
+            e_t += probability(i, j, t, T) * (i / (2 * t - i))
+        return e_t
+    
+    baseline = [expected_score(t, T) for t in range(1, T + 1)]
+
+    return np.array(baseline)
 
 def plot_ranking_results(json_files, random_baseline):
     k_list = range(1, 101)
