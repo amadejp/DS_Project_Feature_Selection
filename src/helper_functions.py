@@ -45,6 +45,7 @@ def measure_runtime(func):
         return result
     return wrapper
 
+
 def sample_and_split(df, frac, seed = None, n = None):
     """
     Randomly subsamples a dataframe and returns the features and labels as numpy arrays.
@@ -96,7 +97,8 @@ def get_random_baseline(n=1000000):
 
     return random_mean_list, random_ci_low_list, random_ci_high_list
 
-def get_true_baseline(T):
+
+def get_true_baseline(T=100):
     """
     Replaces the old get_random_baseline with an analytical solution.
 
@@ -118,96 +120,151 @@ def get_true_baseline(T):
 
     return np.array(baseline)
 
-def plot_ranking_results(json_files, random_baseline):
-    k_list = range(1, 101)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+def plot_ranking_results(json_files, random_baseline, plot_type='both'):
+    """
+    Plots the ranking results for a list of json files.
+    Used to compare different ranking algorithms or subsampling proportions in the same plot.
+
+    :param json_files: list of json files containing the ranking results
+    :param random_baseline: random baseline obtained from either get_random_baseline (numerical approx.)
+                            or get_true_baseline (analytical solution)
+    :param plot_type: 'first_gen', 'singles' or 'both'
+    :return:
+    """
+
+    k_list = range(1, 101)
+    categories = ['first_gen', 'singles']
+    if plot_type in categories:
+        categories = [plot_type]
+
+    ncols = 1 if plot_type != 'both' else 2
+    fig, axes = plt.subplots(nrows=1, ncols=ncols, figsize=(12 * ncols, 6))
+    if ncols == 1:
+        axes = [axes]
 
     colorblind_colors = ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#999999']
     linestyles = ['-', '--', ':', '-.', (0, (1, 1)), (0, (3, 1, 1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (5, 1))]
 
-    for idx, file in enumerate(json_files):
-        with open(file, 'r') as f:
-            data = json.load(f)
-            rank_algo = data["rank_algo"]
-            subsampling_proportion = data["subsampling_proportion"]
-            ranking_results = data["evaluations"]["first_gen"][0]
+    for ax, category in zip(axes, categories):
+        for idx, file in enumerate(json_files):
+            with open(file, 'r') as f:
+                data = json.load(f)
+                rank_algo = data["rank_algo"]
+                subsampling_proportion = data["subsampling_proportion"]
+                ranking_results = data["evaluations"][category][0]
 
-            ax.plot(ranking_results, label=f'{rank_algo} ({subsampling_proportion})',
-                    color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
+                ax.plot(ranking_results, label=f'{rank_algo} ({subsampling_proportion})',
+                        color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
 
-    random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
+        if isinstance(random_baseline[0], tuple):
+            random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
+        else:
+            random_mean_list = random_baseline
+            random_ci_low_list = random_baseline
+            random_ci_high_list = random_baseline
 
-    ax.plot(random_mean_list, label='random ranking', color='grey')
-    x = [k - 1 for k in k_list]
-    ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
+        ax.plot(random_mean_list, label='random ranking', color='grey')
+        x = [k - 1 for k in k_list]
+        ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
 
-    ax.set_xlabel('k')
-    ax.set_ylabel('Jaccard score')
-    #ax.legend()
-    ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0., prop={'size': 15})
+        ax.set_title(category.replace('_', ' ').title())
+        ax.set_xlabel('k')
+        ax.set_ylabel('Jaccard score')
 
-    ax.tick_params(axis='both', which='major', labelsize=15)
-    ax.xaxis.label.set_size(16)
-    ax.yaxis.label.set_size(16)
+        ax.tick_params(axis='both', which='major', labelsize=15)
+        ax.xaxis.label.set_size(16)
+        ax.yaxis.label.set_size(16)
 
-    # add grid
-    ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
+        ax.xaxis.set_ticks(np.arange(0, 101, 20))
+        ax.xaxis.set_ticklabels(['1', '20', '40', '60', '80', '100'])
+
+        ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
+
+    if ncols == 2:
+        axes[-1].legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0., prop={'size': 15})
+    else:
+        axes[0].legend(loc='lower right', prop={'size': 15})
 
     plt.tight_layout(rect=[0, 0, 1, 1])
-    #plt.tight_layout()
-    #plt.savefig('img/report_top_k_scores_first_gen.png', dpi=400, bbox_inches='tight')
     plt.show()
 
 
-def plot_ranking_results_same_algo(json_files, random_baseline):
-    k_list = range(1, 101)
+def plot_ranking_results_same_algo(json_files, random_baseline, plot_type='both'):
+    """
+    Plots the ranking results for a list of json files.
+    Used to compare the performance of the same ranking algorithm using different subsampling proportions.
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    :param json_files: list of json files containing the ranking results
+    :param random_baseline: random baseline obtained from either get_random_baseline (numerical approx.) or
+                            get_true_baseline (analytical solution)
+    :param plot_type: 'first_gen', 'singles' or 'both'
+    :return:
+    """
+
+    k_list = range(1, 101)
+    categories = ['first_gen', 'singles']
+    if plot_type in categories:
+        categories = [plot_type]
+
+    ncols = 1 if plot_type != 'both' else 2
+    fig, axes = plt.subplots(nrows=1, ncols=ncols, figsize=(8 * ncols, 6))
+    if ncols == 1:
+        axes = [axes]
 
     colorblind_colors = ['#E69F00', '#56B4E9', '#009E73', '#D55E00', '#F0E442', '#0072B2', '#CC79A7']
     linestyles = ['-', '--', ':', '-.', (0, (1, 1)), (0, (3, 1, 1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (5, 1))]
 
     rank_algo_title = None
 
-    for idx, file in enumerate(json_files):
-        with open(file, 'r') as f:
-            data = json.load(f)
-            rank_algo = data["rank_algo"]
-            subsampling_proportion = data["subsampling_proportion"]
-            exec_time = data["exec_time"]
-            ranking_results = data["evaluations"]["first_gen"][0]
+    for ax, category in zip(axes, categories):
+        for idx, file in enumerate(json_files):
+            with open(file, 'r') as f:
+                data = json.load(f)
+                rank_algo = data["rank_algo"]
+                subsampling_proportion = data["subsampling_proportion"]
+                exec_time = data["exec_time"]
+                ranking_results = data["evaluations"][category][0]
 
-            if rank_algo_title is None:
-                rank_algo_title = rank_algo
+                if rank_algo_title is None:
+                    rank_algo_title = rank_algo
 
-            ax.plot(ranking_results, label=f'Subsample: {subsampling_proportion}, Time: {exec_time:.2f}s',
-                    color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
+                ax.plot(ranking_results, label=f'Subsample: {subsampling_proportion}, Time: {exec_time:.2f}s',
+                        color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
 
-    random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
+        if isinstance(random_baseline[0], tuple):
+            random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
+        else:
+            random_mean_list = random_baseline
+            random_ci_low_list = random_baseline
+            random_ci_high_list = random_baseline
 
-    ax.plot(random_mean_list, label='random ranking', color='grey')
-    x = [k - 1 for k in k_list]
-    ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
+        ax.plot(random_mean_list, label='random ranking', color='grey')
+        x = [k - 1 for k in k_list]
+        ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
 
-    ax.set_xlabel('k')
-    ax.set_ylabel('Jaccard score')
-    ax.legend()
+        ax.set_title(category.replace('_', ' ').title())
+        ax.set_xlabel('k')
+        ax.set_ylabel('Jaccard score')
 
-    ax.tick_params(axis='both', which='major', labelsize=15)
-    ax.xaxis.label.set_size(16)
-    ax.yaxis.label.set_size(16)
+        ax.tick_params(axis='both', which='major', labelsize=15)
+        ax.xaxis.label.set_size(16)
+        ax.yaxis.label.set_size(16)
 
-    # legend font size
-    ax.legend(loc='lower right', prop={'size': 15})
+        ax.xaxis.set_ticks(np.arange(0, 101, 20))
+        ax.xaxis.set_ticklabels(['1', '20', '40', '60', '80', '100'])
 
-    # add grid
-    ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
+        ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
+
+    if ncols == 2:
+        axes[-1].legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0., prop={'size': 15})
+    else:
+        axes[0].legend(loc='lower right', prop={'size': 15})
 
     if rank_algo_title is not None:
-        plt.title(rank_algo_title, fontsize=18)
+        fig.suptitle(rank_algo_title, fontsize=18, y=1.05)
+
     plt.tight_layout()
-    #plt.savefig('img/report_top_k_scores_first_gen.png', dpi=400, bbox_inches='tight')
     plt.show()
 
 
@@ -220,7 +277,9 @@ if __name__ == '__main__':
     json_files = ['results/mutual_info_score_seed0_sub0.1_features-all.json',
                   'results/mutual_info_score_seed0_sub0.1_features-all_leon_fail.json']
 
-    plot_ranking_results(json_files)
+    random_baseline = get_true_baseline()
+
+    plot_ranking_results(json_files, random_baseline)
     #plot_ranking_results_same_algo(json_files)
 
 
