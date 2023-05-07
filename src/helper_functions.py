@@ -134,7 +134,15 @@ def area_under_the_curve(points):
     return a / n
 
 
-def plot_ranking_results(json_files_list, random_baseline, plot_type='both'):
+def bootstrap_mean_ci(data, n_bootstraps=100):
+    bootstrapped_means = []
+    for _ in range(n_bootstraps):
+        bootstrap_sample = np.random.choice(data, size=len(data), replace=True)
+        bootstrapped_means.append(np.mean(bootstrap_sample))
+    return bootstrapped_means
+
+
+def plot_ranking_results(json_files_list, random_baseline, plot_type='both', bootstrap=False):
     k_list = range(1, 101)
     categories = ['first_gen', 'singles']
     if plot_type in categories:
@@ -159,13 +167,40 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both'):
                     ranking_results = data["evaluations"][category][0]
                     results.append(ranking_results)
 
-            mean_results = np.mean(results, axis=0)
-            std_results = np.std(results, axis=0)
+            if bootstrap:
+                mean_results = np.zeros_like(results[0])
+                ci_lower_results = np.zeros_like(mean_results)
+                ci_upper_results = np.zeros_like(mean_results)
 
-            ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
-                    color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
-            ax.fill_between(range(100), mean_results - std_results, mean_results + std_results, alpha=0.2,
-                            color=colorblind_colors[idx % len(colorblind_colors)])
+                for k in range(len(mean_results)):
+                    btsrp_means = bootstrap_mean_ci(np.array(results)[:, k])
+                    btsrp_se = np.std(btsrp_means) / np.sqrt(len(btsrp_means))
+                    mean_results[k] = np.mean(btsrp_means)
+                    ci_lower_results[k] = np.mean(btsrp_means) - 1.96 * btsrp_se
+                    ci_upper_results[k] = np.mean(btsrp_means) + 1.96 * btsrp_se
+
+                print(ci_lower_results)
+                print(ci_upper_results)
+
+                ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
+                        color=colorblind_colors[idx % len(colorblind_colors)],
+                        linestyle=linestyles[idx % len(linestyles)])
+                ax.fill_between(range(100), ci_lower_results, ci_upper_results, alpha=0.2,
+                                color=colorblind_colors[idx % len(colorblind_colors)])
+
+            else:
+                # remove 5 most extreme outliers
+                results = np.array(results)
+                results = np.sort(results, axis=0)[5:-5, :]
+                mean_results = np.mean(results, axis=0)
+                # get max and min values for each k
+                max_results = np.max(results, axis=0)
+                min_results = np.min(results, axis=0)
+
+                ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
+                        color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
+                ax.fill_between(range(100), min_results, max_results, alpha=0.2,
+                                color=colorblind_colors[idx % len(colorblind_colors)])
 
         if isinstance(random_baseline[0], tuple):
             random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
