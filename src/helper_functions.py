@@ -121,6 +121,19 @@ def get_true_baseline(T=100):
     return np.array(baseline)
 
 
+def area_under_the_curve(points):
+    """
+    Computes area under the curve (i, points[i]), i.e., assumes that x-values are at distance 1.
+    :param points:
+    :return:
+    """
+    n = len(points) - 1
+    a = 0.0
+    for i in range(n):
+        a += (points[i] + points[i + 1]) / 2
+    return a / n
+
+
 def plot_ranking_results(json_files, random_baseline, plot_type='both'):
     """
     Plots the ranking results for a list of json files.
