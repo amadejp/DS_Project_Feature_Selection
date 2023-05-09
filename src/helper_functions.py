@@ -123,15 +123,74 @@ def get_true_baseline(T=100):
 
 def area_under_the_curve(points):
     """
-    Computes area under the curve (i, points[i]), i.e., assumes that x-values are at distance 1.
-    :param points:
-    :return:
+    Calculates area under the curve by summing the values and normalizing.
+    :param points: A 1D NumPy array of y-values.
+    :return: The area under the curve.
     """
-    n = len(points) - 1
-    a = 0.0
-    for i in range(n):
-        a += (points[i] + points[i + 1]) / 2
-    return a / n
+    return np.mean(points)
+
+def performance_time_metric(json_file):
+    """
+    Computes performance metrics based on the data in a JSON file.
+
+    Parameters
+    ----------
+    json_file : str
+        The path to the JSON file containing the performance data.
+
+    Returns
+    -------
+    dict
+        A dictionary containing two performance metrics:
+        - first_gen_metric: The area under the curve of the first generation evaluation scores
+          divided by the execution time.
+        - singles_metric: The area under the curve of the single-player evaluation scores
+          divided by the execution time.
+    """
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+
+    # Get the execution time from the JSON data
+    t = data["exec_time"]
+
+    # Compute the area under the curve for the first generation and single-player evaluation scores
+    auc_first_gen = area_under_the_curve(data["evaluations"]["first_gen"][0])
+    auc_singles = area_under_the_curve(data["evaluations"]["singles"][0])
+
+    # Return the performance metrics as a dictionary
+    return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
+
+def corrected_performance_time_metric(json_file):
+    """
+    Computes performance metrics based on the data in a JSON file, using the true baseline.
+
+    Parameters
+    ----------
+    json_file : str
+        The path to the JSON file containing the performance data.
+
+    Returns
+    -------
+    dict
+        A dictionary containing two performance metrics:
+        - first_gen_metric: The area under the curve of the first generation evaluation scores
+          divided by the execution time.
+        - singles_metric: The area under the curve of the single-player evaluation scores
+          divided by the execution time.
+    """
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+
+    # Get the execution time from the JSON data
+    t = data["exec_time"]
+
+    baseline = get_true_baseline(len(data["evaluations"]["first_gen"][0]))  
+    # Compute the area under the curve for the first generation and single-player evaluation scores
+    auc_first_gen = np.mean(data["evaluations"]["first_gen"][0] - baseline)/(1 - area_under_the_curve(baseline))
+    auc_singles = np.mean(data["evaluations"]["singles"][0] - baseline)/(1 - area_under_the_curve(baseline))
+
+    # Return the performance metrics as a dictionary
+    return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
 
 
 def bootstrap_mean_ci(data, n_bootstraps=100):
