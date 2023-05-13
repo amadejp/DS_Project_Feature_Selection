@@ -80,7 +80,7 @@ def chi2_score(X, y):
 
 
 def pearson_correlation_score(X, y):
-    correlations = X.apply(lambda x: x.corr(y))
+    correlations = abs(X.apply(lambda x: x.corr(y)))
 
     return X.columns, correlations
 
