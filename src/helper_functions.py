@@ -7,6 +7,8 @@ import hashlib
 import json
 import scipy.stats as stats
 import math
+import random
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 #from plotnine import ggplot, aes, geom_line, geom_ribbon, labs, theme, element_text, scale_color_manual
@@ -192,6 +194,52 @@ def corrected_performance_time_metric(json_file):
     # Return the performance metrics as a dictionary
     return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
 
+
+
+def feature_shuffle_correction(json_file):
+    """
+    Shuffles features with the same score within their respective groups from a JSON file.
+    The purpose is to make the results more robust to ordering effects.
+
+    Parameters
+    ----------
+    json_file : str
+        The path to the JSON file containing the test results data.
+
+    Returns
+    -------
+    tuple
+        A tuple containing two lists:
+        - The first list contains the shuffled features.
+        - The second list contains the corresponding scores, maintaining their original order.
+    """
+    # Load JSON data from a file
+    with open(json_file, 'r') as file:
+        data = json.load(file)
+
+    # Extract the 'features' and 'scores' from the 'results' section
+    features = data['results']['features']
+    scores = data['results']['scores']
+
+    # Identify the unique scores
+    unique_scores = set(scores)
+
+    # For each unique score, shuffle the corresponding features
+    for unique_score in unique_scores:
+        # Find the indices of the features with the current score
+        score_indices = [i for i, score in enumerate(scores) if score == unique_score]
+
+        # Get the features with the current score
+        score_features = [features[i] for i in score_indices]
+
+        # Shuffle these features
+        random.shuffle(score_features)
+
+        # Replace the features in the original list with the shuffled features
+        for i, score_index in enumerate(score_indices):
+            features[score_index] = score_features[i]
+
+    return features, scores
 
 def bootstrap_mean_ci(data, n_bootstraps=100):
     bootstrapped_means = []
