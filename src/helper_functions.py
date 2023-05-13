@@ -8,12 +8,12 @@ import json
 import scipy.stats as stats
 import math
 import random
-from collections import defaultdict
 
 import matplotlib.pyplot as plt
 #from plotnine import ggplot, aes, geom_line, geom_ribbon, labs, theme, element_text, scale_color_manual
 
 import eval_algos
+import rank_eval_pipeline as rep
 
 
 def generate_feature_hash(features):
@@ -131,7 +131,7 @@ def area_under_the_curve(points):
     """
     return np.mean(points)
 
-def performance_time_metric(json_file):
+def performance_time_metric(json_file, shuffle_correction=False):
     """
     Computes performance metrics based on the data in a JSON file.
 
@@ -146,7 +146,7 @@ def performance_time_metric(json_file):
         A dictionary containing two performance metrics:
         - first_gen_metric: The area under the curve of the first generation evaluation scores
           divided by the execution time.
-        - singles_metric: The area under the curve of the single-player evaluation scores
+        - singles_metric: The area under the curve of the singles evaluation scores
           divided by the execution time.
     """
     with open(json_file, 'r') as f:
@@ -155,14 +155,28 @@ def performance_time_metric(json_file):
     # Get the execution time from the JSON data
     t = data["exec_time"]
 
-    # Compute the area under the curve for the first generation and single-player evaluation scores
-    auc_first_gen = area_under_the_curve(data["evaluations"]["first_gen"][0])
-    auc_singles = area_under_the_curve(data["evaluations"]["singles"][0])
+    if shuffle_correction:
+        # first perform the shuffle correction on our features
+        features, scores = feature_shuffle_correction(data)
+        # use a RankEval object to evaluate the ranking
+        RE = rep.RankEval("","")
+        RE.ranking = features
+        RE.scores = scores
+        RE.evaluate_ranking()
+
+        # Compute the area under the curve for the first generation and singles evaluation scores
+        auc_first_gen = area_under_the_curve(RE.eval_res_first_gen[0])
+        auc_singles = area_under_the_curve(RE.eval_res_singles[0])
+    
+    else:
+        # Compute the area under the curve for the first generation and singles evaluation scores
+        auc_first_gen = area_under_the_curve(data["evaluations"]["first_gen"][0])
+        auc_singles = area_under_the_curve(data["evaluations"]["singles"][0])
 
     # Return the performance metrics as a dictionary
     return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
 
-def corrected_performance_time_metric(json_file):
+def corrected_performance_time_metric(json_file, shuffle_correction=False):
     """
     Computes performance metrics based on the data in a JSON file, using the true baseline.
 
@@ -177,7 +191,7 @@ def corrected_performance_time_metric(json_file):
         A dictionary containing two performance metrics:
         - first_gen_metric: The area under the curve of the first generation evaluation scores
           divided by the execution time.
-        - singles_metric: The area under the curve of the single-player evaluation scores
+        - singles_metric: The area under the curve of the singles evaluation scores
           divided by the execution time.
     """
     with open(json_file, 'r') as f:
@@ -185,11 +199,26 @@ def corrected_performance_time_metric(json_file):
 
     # Get the execution time from the JSON data
     t = data["exec_time"]
+    # Get the baseline
+    baseline = get_true_baseline(len(data["results"]["features"]))
 
-    baseline = get_true_baseline(len(data["evaluations"]["first_gen"][0]))  
-    # Compute the area under the curve for the first generation and single-player evaluation scores
-    auc_first_gen = np.mean(data["evaluations"]["first_gen"][0] - baseline)/(1 - area_under_the_curve(baseline))
-    auc_singles = np.mean(data["evaluations"]["singles"][0] - baseline)/(1 - area_under_the_curve(baseline))
+    if shuffle_correction:
+        # first perform the shuffle correction on our features
+        features, scores = feature_shuffle_correction(data)
+        # use a RankEval object to evaluate the ranking
+        RE = rep.RankEval("","")
+        RE.ranking = features
+        RE.scores = scores
+        RE.evaluate_ranking()
+
+        # Compute the area under the curve for the first generation and singles evaluation scores
+        auc_first_gen = np.mean(RE.eval_res_first_gen[0] - baseline)/(1 - area_under_the_curve(baseline))
+        auc_singles = np.mean(RE.eval_res_singles[0] - baseline)/(1 - area_under_the_curve(baseline))
+
+    else:
+        # Compute the area under the curve for the first generation and singles evaluation scores
+        auc_first_gen = np.mean(data["evaluations"]["first_gen"][0] - baseline)/(1 - area_under_the_curve(baseline))
+        auc_singles = np.mean(data["evaluations"]["singles"][0] - baseline)/(1 - area_under_the_curve(baseline))
 
     # Return the performance metrics as a dictionary
     return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
