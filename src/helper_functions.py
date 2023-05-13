@@ -196,15 +196,15 @@ def corrected_performance_time_metric(json_file):
 
 
 
-def feature_shuffle_correction(json_file):
+def feature_shuffle_correction(data):
     """
     Shuffles features with the same score within their respective groups from a JSON file.
     The purpose is to make the results more robust to ordering effects.
 
     Parameters
     ----------
-    json_file : str
-        The path to the JSON file containing the test results data.
+    data : dict
+        The data read from a JSON file.
 
     Returns
     -------
@@ -213,10 +213,6 @@ def feature_shuffle_correction(json_file):
         - The first list contains the shuffled features.
         - The second list contains the corresponding scores, maintaining their original order.
     """
-    # Load JSON data from a file
-    with open(json_file, 'r') as file:
-        data = json.load(file)
-
     # Extract the 'features' and 'scores' from the 'results' section
     features = data['results']['features']
     scores = data['results']['scores']
