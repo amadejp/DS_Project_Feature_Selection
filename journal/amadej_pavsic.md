@@ -34,7 +34,7 @@
 * 29\. (1h): meeting with Outbrain
 * 31\. (1h): internal team meeting to sync up, delegate tasks...
 
-## April 2023 (40.5h)
+## April 2023 (48.5h)
 * 4\. (2h): Summarizing EDA for interim report  
 * 4\. (3h): Rewriting rank_eval pipeline
 * 5\. (3h): Rewriting&Testing&Documenting rank_eval pipeline, testing venv and requirements.txt
@@ -59,6 +59,29 @@
 * 25\. (2h): Preparing plots for each ranking method
 * 25\. (2h): Coding, optimizing random baseline function and bootstrap
 * 25\. (1h): Internal team meeting, debugging
+* 26\. (3h): Analysis of ranking algorithm comparison plots
+* 26\. (2h): Searching for function that describes random baseline
+* 26\. (1h): Meeting with Outbrain
+* 27\. (2h): Analysis of ranking algorithm comparison plots
+
+## May 2023 (29h)
+* 2\. (1h): Internal team meeting, sync up
+* 2\. (2h): Debugging random baseline function
+* 2\. (3h): Updating plotting functions
+* 2\. (2h): Debugging plotting functions
+* 3\. (2h): Rerunning ipynb for ranking algorithm comparison
+* 3\. (3h): Analysis of ranking algorithm comparison plots
+* 4\. (3h): Internal team meeting and debugging pipeline for performance issues evaluation
+* 6\. (3h): Making extra plots (singles/first_gen, reverse order)
+* 7\. (1h): Syncing up with team, preparing batch evaluations, etc.
+* 7\. (3h): Running batch evaluations
+* 7\. (3h): Plotting & analysing batch evaluations
+* 8\. (3h): Fixing uncertainty in plots
+* 12\. (1h): Internal meeting
+* 13\. (2h): Internal meeting and debugging
+* 13\. (1h): Fixing documentation (ground truth from numbers files)
+* 13\. (1h): Internal meeting and sync
+* 14\. (3h): Generating new batch evaluations with chosen features
 
 
 ## Total: [total sum of hours]
