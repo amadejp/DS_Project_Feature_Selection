@@ -275,7 +275,6 @@ def bootstrap_mean_ci(data, n_bootstraps=100):
 
 
 def plot_ranking_results(json_files_list, random_baseline, plot_type='both', bootstrap=False):
-    k_list = range(1, 101)
     categories = ['first_gen', 'singles']
     if plot_type in categories:
         categories = [plot_type]
@@ -299,6 +298,9 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
                     ranking_results = data["evaluations"][category][0]
                     results.append(ranking_results)
 
+            num_features = len(results[0])  # number of features (k)
+            k_list = range(1, num_features + 1)  # k range
+
             if bootstrap:
                 mean_results = np.zeros_like(results[0])
                 ci_lower_results = np.zeros_like(mean_results)
@@ -317,7 +319,7 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
                 ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
                         color=colorblind_colors[idx % len(colorblind_colors)],
                         linestyle=linestyles[idx % len(linestyles)])
-                ax.fill_between(range(100), ci_lower_results, ci_upper_results, alpha=0.2,
+                ax.fill_between(k_list, ci_lower_results, ci_upper_results, alpha=0.2,
                                 color=colorblind_colors[idx % len(colorblind_colors)])
 
             else:
@@ -331,7 +333,7 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
 
                 ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
                         color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
-                ax.fill_between(range(100), min_results, max_results, alpha=0.2,
+                ax.fill_between(k_list, min_results, max_results, alpha=0.2,
                                 color=colorblind_colors[idx % len(colorblind_colors)])
 
         if isinstance(random_baseline[0], tuple):
@@ -342,7 +344,7 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
             random_ci_high_list = random_baseline
 
         ax.plot(random_mean_list, label='random ranking', color='grey')
-        x = [k - 1 for k in k_list]
+        x = [k for k in k_list]
         ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
 
         ax.set_title(category.replace('_', ' ').title())
@@ -353,8 +355,8 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
         ax.xaxis.label.set_size(16)
         ax.yaxis.label.set_size(16)
 
-        ax.xaxis.set_ticks(np.arange(0, 101, 20))
-        ax.xaxis.set_ticklabels(['1', '20', '40', '60', '80', '100'])
+        ax.xaxis.set_ticks(np.arange(0, num_features + 1, num_features // 5))
+        ax.xaxis.set_ticklabels([str(i) for i in np.arange(0, num_features + 1, num_features // 5)])
 
         ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
 
