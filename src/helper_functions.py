@@ -245,6 +245,7 @@ def feature_shuffle_correction(data):
     # Extract the 'features' and 'scores' from the 'results' section
     features = data['results']['features']
     scores = data['results']['scores']
+    random.seed(data["seed"] + 100)
 
     # Identify the unique scores
     unique_scores = set(scores)
