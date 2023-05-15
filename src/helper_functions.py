@@ -275,7 +275,7 @@ def bootstrap_mean_ci(data, n_bootstraps=100):
     return bootstrapped_means
 
 
-def plot_ranking_results(json_files_list, random_baseline, plot_type='both', bootstrap=False):
+def plot_ranking_results(json_files_list, plot_type='both', bootstrap=False):
     categories = ['first_gen', 'singles']
     if plot_type in categories:
         categories = [plot_type]
@@ -337,12 +337,11 @@ def plot_ranking_results(json_files_list, random_baseline, plot_type='both', boo
                 ax.fill_between(k_list, min_results, max_results, alpha=0.2,
                                 color=colorblind_colors[idx % len(colorblind_colors)])
 
-        if isinstance(random_baseline[0], tuple):
-            random_mean_list, random_ci_low_list, random_ci_high_list = random_baseline
-        else:
-            random_mean_list = random_baseline
-            random_ci_low_list = random_baseline
-            random_ci_high_list = random_baseline
+
+        random_baseline = get_true_baseline(T=num_features)
+        random_mean_list = random_baseline
+        random_ci_low_list = random_baseline
+        random_ci_high_list = random_baseline
 
         ax.plot(random_mean_list, label='random ranking', color='grey')
         x = [k for k in k_list]
