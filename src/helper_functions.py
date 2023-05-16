@@ -266,6 +266,33 @@ def feature_shuffle_correction(data):
 
     return features, scores
 
+def compile_metrics(files_list, shuffle_correction):
+    """
+    Takes a list of json files and returns a dictionary of metrics. We also need
+    to choose whether or not to perform the shuffle correction.
+
+    Parameters
+    ----------
+    files_list : list of strings
+        The list of paths to the JSON files containing the performance data.
+    shuffle_correction : bool
+
+    Returns
+    -------
+    dict
+        The keys are the subsampling proportions and the values are a tuple of two auc scores and average runtime.
+    """
+    metrics = {"auc_first_gen": [], "auc_singles": [], "average_exec_time": None}
+    cum_runtime = 0
+    for file in files_list:
+        metric_dict = corrected_performance_time_metric(file, shuffle_correction=shuffle_correction)
+        metrics["auc_first_gen"].append(metric_dict["auc_first_gen"])
+        metrics["auc_singles"].append(metric_dict["auc_singles"])
+        cum_runtime += metric_dict["exec_time"]
+        metrics["average_exec_time"] = cum_runtime / len(files_list)
+
+    return metrics
+
 def bootstrap_mean_ci(data, n_bootstraps=100):
     bootstrapped_means = []
     for _ in range(n_bootstraps):
