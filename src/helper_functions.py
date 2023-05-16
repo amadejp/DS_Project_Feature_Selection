@@ -224,7 +224,6 @@ def corrected_performance_time_metric(json_file, shuffle_correction=False):
     return {"auc_first_gen": auc_first_gen, "auc_singles": auc_singles, "exec_time": t}
 
 
-
 def feature_shuffle_correction(data):
     """
     Shuffles features with the same score within their respective groups from a JSON file.
@@ -275,7 +274,7 @@ def bootstrap_mean_ci(data, n_bootstraps=100):
     return bootstrapped_means
 
 
-def plot_ranking_results(json_files_list, plot_type='both', bootstrap=False):
+def plot_ranking_results(json_files_list, plot_type='both'):
     categories = ['first_gen', 'singles']
     if plot_type in categories:
         categories = [plot_type]
@@ -302,50 +301,22 @@ def plot_ranking_results(json_files_list, plot_type='both', bootstrap=False):
             num_features = len(results[0])  # number of features (k)
             k_list = range(1, num_features + 1)  # k range
 
-            if bootstrap:
-                mean_results = np.zeros_like(results[0])
-                ci_lower_results = np.zeros_like(mean_results)
-                ci_upper_results = np.zeros_like(mean_results)
+            # remove 5 most extreme outliers
+            results = np.array(results)
+            results = np.sort(results, axis=0)[5:-5, :]
+            mean_results = np.mean(results, axis=0)
+            # get max and min values for each k
+            max_results = np.max(results, axis=0)
+            min_results = np.min(results, axis=0)
 
-                for k in range(len(mean_results)):
-                    btsrp_means = bootstrap_mean_ci(np.array(results)[:, k])
-                    btsrp_se = np.std(btsrp_means) / np.sqrt(len(btsrp_means))
-                    mean_results[k] = np.mean(btsrp_means)
-                    ci_lower_results[k] = np.mean(btsrp_means) - 1.96 * btsrp_se
-                    ci_upper_results[k] = np.mean(btsrp_means) + 1.96 * btsrp_se
-
-                print(ci_lower_results)
-                print(ci_upper_results)
-
-                ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
-                        color=colorblind_colors[idx % len(colorblind_colors)],
-                        linestyle=linestyles[idx % len(linestyles)])
-                ax.fill_between(k_list, ci_lower_results, ci_upper_results, alpha=0.2,
-                                color=colorblind_colors[idx % len(colorblind_colors)])
-
-            else:
-                # remove 5 most extreme outliers
-                results = np.array(results)
-                results = np.sort(results, axis=0)[5:-5, :]
-                mean_results = np.mean(results, axis=0)
-                # get max and min values for each k
-                max_results = np.max(results, axis=0)
-                min_results = np.min(results, axis=0)
-
-                ax.plot(mean_results, label=f'{rank_algo} ({subsampling_proportion})',
-                        color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
-                ax.fill_between(k_list, min_results, max_results, alpha=0.2,
-                                color=colorblind_colors[idx % len(colorblind_colors)])
-
+            ax.plot(k_list, mean_results, label=f'{rank_algo} ({subsampling_proportion})',
+                    color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
+            ax.fill_between(k_list, min_results, max_results, alpha=0.2,
+                            color=colorblind_colors[idx % len(colorblind_colors)])
 
         random_baseline = get_true_baseline(T=num_features)
-        random_mean_list = random_baseline
-        random_ci_low_list = random_baseline
-        random_ci_high_list = random_baseline
 
-        ax.plot(random_mean_list, label='random ranking', color='grey')
-        x = [k for k in k_list]
-        ax.fill_between(x, random_ci_low_list, random_ci_high_list, alpha=0.2, color='grey')
+        ax.plot(k_list, random_baseline, label='random ranking', color='grey')
 
         ax.set_title(category.replace('_', ' ').title())
         ax.set_xlabel('k')
@@ -355,8 +326,8 @@ def plot_ranking_results(json_files_list, plot_type='both', bootstrap=False):
         ax.xaxis.label.set_size(16)
         ax.yaxis.label.set_size(16)
 
-        ax.xaxis.set_ticks(np.arange(0, num_features + 1, num_features // 5))
-        ax.xaxis.set_ticklabels([str(i) for i in np.arange(0, num_features + 1, num_features // 5)])
+        xticks = np.linspace(1, num_features, 6).astype(int)
+        ax.set_xticks(xticks)
 
         ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
 
@@ -364,6 +335,41 @@ def plot_ranking_results(json_files_list, plot_type='both', bootstrap=False):
         axes[-1].legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0., prop={'size': 15})
     else:
         axes[0].legend(loc='lower right', prop={'size': 15})
+
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    plt.show()
+
+
+def plot_ranking_results_manual(scores_list, labels_list):
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    colorblind_colors = ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#999999']
+    linestyles = ['-', '--', ':', '-.', (0, (1, 1)), (0, (3, 1, 1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (5, 1))]
+
+    for idx, results in enumerate(scores_list):
+        num_features = len(results)  # number of features (k)
+        k_list = range(1, num_features + 1)  # k range
+        label = labels_list[idx]  # retrieve label
+
+        ax.plot(k_list, results, label=label,
+                color=colorblind_colors[idx % len(colorblind_colors)], linestyle=linestyles[idx % len(linestyles)])
+
+    random_baseline = get_true_baseline(T=num_features)
+    ax.plot(k_list, random_baseline, label='random ranking', color='grey')
+
+    ax.set_xlabel('k')
+    ax.set_ylabel('Jaccard score')
+
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.xaxis.label.set_size(16)
+    ax.yaxis.label.set_size(16)
+
+    xticks = np.linspace(1, num_features, 6).astype(int)
+    ax.set_xticks(xticks)
+
+    ax.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5)
+
+    ax.legend(loc='lower right', prop={'size': 15})
 
     plt.tight_layout(rect=[0, 0, 1, 1])
     plt.show()
