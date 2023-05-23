@@ -4,9 +4,11 @@ import pandas as pd
 import rank_algos
 from rank_eval_pipeline import RankEval
 from helper_functions import generate_feature_hash
+import os
+from pathlib import Path
 
 
-def main(args):   
+def main(args):
     # load data
     data = pd.read_csv('data/full_data.csv')
 
@@ -30,59 +32,78 @@ def main(args):
         'random_forest_score': rank_algos.random_forest_score,
         'chi2_score': rank_algos.chi2_score,
         'pearson_correlation_score': rank_algos.pearson_correlation_score,
-        'anova_f_score': rank_algos.anova_f_score
+        'anova_f_score': rank_algos.anova_f_score,
+        'mrmr_score': rank_algos.mrmr_score
     }
+
     # set the rank algorithm based on the input argument
     if args.rank_algo not in algos:
         print(f'Invalid ranking algorithm specified. Available options are: {", ".join(algos.keys())}')
         return
     rank_algo = algos[args.rank_algo]
 
-    # create the RankEval object
-    RE = RankEval(data, rank_algo, 
-                  seed=args.seed, 
-                  subsampling_proportion=args.subsample, 
-                  features_to_remove=list(features_to_remove))
-    
-    
-    # get the scores
-    results = RE.get_scores()
-    evaluations = RE.get_eval_res()
+    # Create a directory for batch results if it does not exist
+    if args.directory:
+        Path(f'results/{args.directory}').mkdir(parents=True, exist_ok=True)
 
-    # create a dictionary to store the results
-    output_dict = {
-        'rank_algo': args.rank_algo,
-        'seed': args.seed,
-        'subsampling_proportion': args.subsample,
-        'exec_time': RE.exec_time,
-        'results': {
-            'features': results[0].tolist(),
-            'scores': results[1].tolist()
-        },
-        'evaluations': {
-            'eval_method': str(RE.eval_method.__name__),
-            'singles': evaluations[0],
-            'first_gen': evaluations[1]
-        }
-    }
-
-    # save results to a JSON file
-    if features_to_remove:
-        features_hash = generate_feature_hash(features_to_remove)
-        feature_str = features_hash
+    # Load seeds from batch file if specified
+    if args.batch:
+        with open(args.batch, 'r') as f:
+            seeds = [int(line.strip()) for line in f.readlines()]
     else:
-        feature_str = "all"
+        seeds = [args.seed]
 
-    output_file_name = f'results/{args.rank_algo}_seed{args.seed}_sub{args.subsample}_features-{feature_str}.json'
-    with open(output_file_name, 'w') as f:
-        json.dump(output_dict, f)
+    for seed in seeds:
+        # create the RankEval object
+        RE = RankEval(data, rank_algo, 
+                      seed=seed, 
+                      subsampling_proportion=args.subsample, 
+                      features_to_remove=list(features_to_remove))
 
-    print(f'Results saved to {output_file_name}')
+        # get the scores
+        results = RE.get_scores()
+        evaluations = RE.get_eval_res()
+
+        # create a dictionary to store the results
+        output_dict = {
+            'rank_algo': args.rank_algo,
+            'seed': seed,
+            'subsampling_proportion': args.subsample,
+            'exec_time': RE.exec_time,
+            'results': {
+                'features': results[0].tolist(),
+                'scores': results[1].tolist()
+            },
+            'evaluations': {
+                'eval_method': str(RE.eval_method.__name__),
+                'singles': evaluations[0],
+                'first_gen': evaluations[1]
+            }
+        }
+
+        # save results to a JSON file
+        if features_to_remove:
+            features_hash = generate_feature_hash(features_to_remove)
+            feature_str = features_hash
+        else:
+            feature_str = "all"
+
+        output_file_name = f'results/{args.rank_algo}_seed{seed}_sub{args.subsample}_features-{feature_str}.json'
+
+        # Update the output_file_name to include the directory
+        if args.directory:
+            output_file_name = f'results/{args.directory}/{os.path.basename(output_file_name)}'
+
+        with open(output_file_name, 'w') as f:
+            json.dump(output_dict, f)
+
+        print(f'Results saved to {output_file_name}')
 
 
 if __name__ == '__main__':
     # define the command line arguments
     parser = argparse.ArgumentParser(description='Rank evaluation pipeline')
+
     parser.add_argument('--rank-algo', type=str, required=True,
                         help='The name of the ranking algorithm to use (chi2, mutual_info, rf, etc.)')
     parser.add_argument('--seed', type=int, default=0,
@@ -93,7 +114,17 @@ if __name__ == '__main__':
                         help='List of feature names to remove (e.g., --drop-features feature99 feature98)')
     parser.add_argument('--drop-features-file', type=str, default=None,
                         help='A file containing a list of feature names to remove, one per line')
+    parser.add_argument('--batch', type=str, default=None,
+                        help='A file containing a list of seeds (integers), one per line')
+    parser.add_argument('--directory', type=str, default=None,
+                        help='A subdirectory in "results" to store the output files of the entire batch')
+
     args = parser.parse_args()
+
+    # Check if the directory argument is provided when the batch argument is used
+    if args.batch and not args.directory:
+        print("Error: The --directory argument is required when using the --batch argument.")
+        exit(1)
 
     # call the main function with the command line arguments
     main(args)

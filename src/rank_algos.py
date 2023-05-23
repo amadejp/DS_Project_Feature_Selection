@@ -6,6 +6,7 @@ from skrebate import SURF, SURFstar, MultiSURF, MultiSURFstar
 import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
+from mrmr import mrmr_classif
 
 
 def mutual_info_score(X, y):
@@ -79,7 +80,7 @@ def chi2_score(X, y):
 
 
 def pearson_correlation_score(X, y):
-    correlations = X.apply(lambda x: x.corr(y))
+    correlations = abs(X.apply(lambda x: x.corr(y)))
 
     return X.columns, correlations
 
@@ -89,6 +90,13 @@ def anova_f_score(X, y):
     ranker.fit(np.array(X), np.array(y))
 
     return X.columns, ranker.scores_
+
+def mrmr_score(X, y):
+    ranking = mrmr_classif(X, y, K=X.shape[1])
+    scores = [X.shape[1] - 1 - ranking.index(i) if i in ranking 
+     else 0 for i in list(X.columns)]
+
+    return X.columns, np.array(scores)
 
 
 if __name__ == "__main__":
