@@ -70,11 +70,11 @@ Contains journal files of authors with description and quantification of work do
 
 ### The interim report folder ###
 
-Contains interim report in PDF and LaTeX format.
+Contains interim report as a LaTeX project and compiled PDF.
 
 ### The final report folder ###
 
-Contains final report in PDF and LaTeX format.
+Contains final report as a LaTeX project and compiled PDF.
 
 ### The presentation folder ###
 
