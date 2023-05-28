@@ -27,22 +27,41 @@ There are several subfolders in the repository:
 
 Contains code & stuff.
 
+* `EDA.ipynb`
+  * Code and visualizations for exploratory data analysis
+
+* `helper_functions.py`
+  * various helper functions for feature ranking algorithms and evaluation pipeline
+
+* `rank_eval_pipeline.py`
+  * pipeline for evaluating feature ranking algorithms
+
+* `ranking_algos_comparison_chosen.ipynb`
+  * visualizations of feature ranking algorithms, comparison of chosen algorithms (different algorithms, subsets of data)
+
+* `optimization_graphing.ipynb`
+  * visualizations of subsampling optimization, ensemble technique
+
+* `performance_graphing.ipynb`
+  * visualizations of time vs performance of feature ranking algorithms
+
 * data subfolder (`/data`)
     * placeholder for full_data.csv
     * contains ground truth data
 
 * documentation subfolder (`/docs`)
-  * contains feature descriptions
-  * contains documentation of algorithm testing
+  * feature descriptions
+  * documentation of algorithm testing
 
 * results subfolder (`/img`)
-  * contains various visualizations of results (dendrograms, etc.)
+  * various visualizations of results (dendrograms, plots, etc.)
 
 * results subfolder (`/results`)
-  * contains various results of algorithm testing
+  * various results of algorithm testing
 
 * fuji subfolder (`/fuji`)
-  * contains [Fuzzy Jaccard Index package](https://github.com/Petkomat/fuji-score), used to evaluate feature ranking algorithms
+  * contains [Fuzzy Jaccard Index package](https://github.com/Petkomat/fuji-score), that was used as an experiment 
+  to evaluate feature ranking algorithms. The package also contains some helper functions for feature ranking.
 
 
 ### The journal folder ###
@@ -51,12 +70,12 @@ Contains journal files of authors with description and quantification of work do
 
 ### The interim report folder ###
 
-Will contain interim report.
+Contains interim report in PDF and LaTeX format.
 
 ### The final report folder ###
 
-Will contain final report.
+Contains final report in PDF and LaTeX format.
 
 ### The presentation folder ###
 
-Will contain final presentation.
+Contains presentation in PDF and pptx format.
