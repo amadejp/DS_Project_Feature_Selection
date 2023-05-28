@@ -64,7 +64,7 @@
 * 26\. (1h): Meeting with Outbrain
 * 27\. (2h): Analysis of ranking algorithm comparison plots
 
-## May 2023 (37h)
+## May 2023 (75h)
 * 2\. (1h): Internal team meeting, sync up
 * 2\. (2h): Debugging random baseline function
 * 2\. (3h): Updating plotting functions
@@ -82,6 +82,21 @@
 * 13\. (1h): Fixing documentation (ground truth from numbers files)
 * 13\. (1h): Internal meeting and sync
 * 14\. (3h): Generating new batch evaluations with chosen features
+* 15\. (2h): Updating plotting function (built-in baseline) and rerunning notebooks and plots
+* 21\. (3h): Analysing ensemble results
+* 22\. (2h): Testing ensemble results
+* 22\. (1h): Internal meeting
+* 22\. (2h): Making plots for report
+* 23\. (2h): Internal meeting about report structure and content
+* 23\. (3h): Writing report & plots
+* 24\. (1h): Outbrain meeting
+* 24\. (2h): Writing report & plots & internal meeting
+* 25\. (4h): Writing report & plots
+* 27\. (2h): Internal meeting for report fixing
+* 27\. (4h): Writing report & visualizing plots
+* 28\. (4h): Final report fixes & presentation preparation
+* 28\. (1h): GitHub repo editing
+* 28\. (2h): Presentation preparation
+* 29\. (2h): Presentation preparation
 
-
-## Total: [total sum of hours]
+## Total: [167h]
